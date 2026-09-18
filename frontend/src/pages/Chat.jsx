@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import Logo from "../components/Logo";
@@ -6,6 +6,8 @@ import BackButton from "../components/BackButton";
 import DecorativeBackground from "../components/DecorativeBackground";
 import PageTransition from "../components/PageTransition";
 import Stepper from "../components/Stepper";
+import TabGuardOverlay from "../components/TabGuardOverlay";
+import { useTabGuard } from "../hooks/useTabGuard";
 import { MENSAGENS_INICIAIS, RESPOSTAS_ENIGMA } from "../data/chatScript";
 import { useAppStore } from "../store/useAppStore";
 import "./Chat.css";
@@ -20,6 +22,8 @@ export default function Chat() {
   const messages = useAppStore((s) => s.messages);
   const addMessage = useAppStore((s) => s.addMessage);
   const finish = useAppStore((s) => s.finish);
+  const desclassificar = useAppStore((s) => s.desclassificar);
+  const desclassificado = useAppStore((s) => s.desclassificado);
 
   const [input, setInput] = useState("");
   const [typing, setTyping] = useState(false);
@@ -29,6 +33,16 @@ export default function Chat() {
   const seeded = useRef(false);
 
   const cor = equipe?.cor ?? "green";
+
+  const handleDisqualify = useCallback(() => {
+    desclassificar();
+    navigate("/desclassificado");
+  }, [desclassificar, navigate]);
+
+  const { ausente, segundosRestantes } = useTabGuard({
+    enabled: Boolean(equipe) && !desclassificado,
+    onDisqualify: handleDisqualify,
+  });
 
   useEffect(() => {
     if (!equipe) {
@@ -92,6 +106,7 @@ export default function Chat() {
   return (
     <PageTransition>
       <div className={`screen chat-screen theme-${cor}`}>
+        {ausente && <TabGuardOverlay segundos={segundosRestantes} />}
         <DecorativeBackground variant="minimal" />
         <div className="screen-content">
           <div className="top-bar chat-top-bar">

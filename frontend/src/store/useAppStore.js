@@ -6,16 +6,25 @@ export const useAppStore = create((set, get) => ({
   startedAt: null,
   finishedAt: null,
   messages: [],
+  desclassificado: false,
 
   setAno: (ano) => set({ ano }),
 
   setEquipe: (equipe) =>
-    set({ equipe, startedAt: Date.now(), finishedAt: null, messages: [] }),
+    set({
+      equipe,
+      startedAt: Date.now(),
+      finishedAt: null,
+      messages: [],
+      desclassificado: false,
+    }),
 
   addMessage: (message) =>
     set((state) => ({ messages: [...state.messages, message] })),
 
   finish: () => set({ finishedAt: Date.now() }),
+
+  desclassificar: () => set({ desclassificado: true }),
 
   getElapsedMinutes: () => {
     const { startedAt, finishedAt } = get();
@@ -31,5 +40,6 @@ export const useAppStore = create((set, get) => ({
       startedAt: null,
       finishedAt: null,
       messages: [],
+      desclassificado: false,
     }),
 }));

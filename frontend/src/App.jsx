@@ -5,6 +5,7 @@ import TelaInicial from "./pages/TelaInicial";
 import SelecaoEquipe from "./pages/SelecaoEquipe";
 import Chat from "./pages/Chat";
 import Resultado from "./pages/Resultado";
+import Desclassificado from "./pages/Desclassificado";
 
 export default function App() {
   const location = useLocation();
@@ -17,6 +18,7 @@ export default function App() {
         <Route path="/equipe" element={<SelecaoEquipe />} />
         <Route path="/chat" element={<Chat />} />
         <Route path="/resultado" element={<Resultado />} />
+        <Route path="/desclassificado" element={<Desclassificado />} />
       </Routes>
     </AnimatePresence>
   );
