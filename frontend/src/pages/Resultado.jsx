@@ -85,7 +85,7 @@ export default function Resultado() {
               <span className="resultado-label">MINUTOS</span>
             </motion.div>
 
-            <Button color={cor} onClick={handleReiniciar}>
+            <Button color={cor} size="lg" onClick={handleReiniciar}>
               REINICIAR
             </Button>
           </div>

@@ -91,6 +91,13 @@ button {
 .border-blue { border-color: var(--blue) !important; }
 .border-yellow { border-color: var(--yellow) !important; }
 
+.fill-green { background: rgba(43, 217, 188, 0.18); }
+.fill-magenta { background: rgba(214, 41, 158, 0.18); }
+.fill-purple { background: rgba(138, 60, 255, 0.18); }
+.fill-orange { background: rgba(217, 124, 43, 0.18); }
+.fill-blue { background: rgba(44, 156, 236, 0.18); }
+.fill-yellow { background: rgba(232, 201, 58, 0.18); }
+
 @media (max-width: 640px) {
   .top-bar {
     padding: 20px 20px 0;

@@ -1,0 +1,12 @@
+.circuit-lines {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: auto;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.circuit-lines.is-flipped {
+  transform: scaleY(-1);
+}

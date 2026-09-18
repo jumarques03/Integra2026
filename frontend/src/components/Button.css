@@ -20,6 +20,11 @@
   cursor: not-allowed;
 }
 
+.btn-outline.size-lg {
+  padding: 18px 46px;
+  font-size: 1.1rem;
+}
+
 .btn-outline.color-magenta {
   border-color: var(--magenta);
   background: rgba(214, 41, 158, 0.08);

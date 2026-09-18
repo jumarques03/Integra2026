@@ -7,11 +7,12 @@ export default function Button({
   onClick,
   type = "button",
   disabled = false,
+  size = "md",
 }) {
   return (
     <motion.button
       type={type}
-      className={`btn-outline color-${color}`}
+      className={`btn-outline color-${color} size-${size}`}
       onClick={onClick}
       disabled={disabled}
       whileHover={disabled ? {} : { scale: 1.04 }}

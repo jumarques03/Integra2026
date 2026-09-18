@@ -107,7 +107,7 @@ export default function Chat() {
     <PageTransition>
       <div className={`screen chat-screen theme-${cor}`}>
         {ausente && <TabGuardOverlay segundos={segundosRestantes} />}
-        <DecorativeBackground variant="minimal" />
+        <DecorativeBackground variant="chat" />
         <div className="screen-content">
           <div className="top-bar chat-top-bar">
             <div className="chat-brand">

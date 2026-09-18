@@ -5,6 +5,7 @@ import BackButton from "../components/BackButton";
 import DecorativeBackground from "../components/DecorativeBackground";
 import PageTransition from "../components/PageTransition";
 import Stepper from "../components/Stepper";
+import CircuitLines from "../components/CircuitLines";
 import { EQUIPES } from "../data/equipes";
 import { useAppStore } from "../store/useAppStore";
 import "./SelecaoEquipe.css";
@@ -40,6 +41,10 @@ export default function SelecaoEquipe() {
             <p>selecione a cor do time que você faz parte</p>
           </div>
 
+          <div className="equipe-lines">
+            <CircuitLines />
+          </div>
+
           <div className="equipe-grid">
             {EQUIPES.map((equipe, i) => (
               <motion.button
@@ -52,7 +57,9 @@ export default function SelecaoEquipe() {
                 transition={{ delay: 0.1 + i * 0.08 }}
                 whileHover={{ y: -6, scale: 1.02 }}
               >
-                <span className={`equipe-circle border-${equipe.cor}`} />
+                <span
+                  className={`equipe-circle border-${equipe.cor} fill-${equipe.cor}`}
+                />
                 <span className="equipe-nome">{equipe.nome}</span>
                 <span className="equipe-divider" />
                 <span className={`equipe-select text-${equipe.cor}`}>

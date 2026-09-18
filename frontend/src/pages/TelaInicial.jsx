@@ -6,6 +6,7 @@ import DecorativeBackground from "../components/DecorativeBackground";
 import PageTransition from "../components/PageTransition";
 import TerminalWidget from "../components/TerminalWidget";
 import Button from "../components/Button";
+import CircuitLines from "../components/CircuitLines";
 import "./TelaInicial.css";
 
 const TAGS = ["LÓGICA", "TECNOLOGIA", "ENIGMA", "INTELIGÊNCIA"];
@@ -62,36 +63,48 @@ export default function TelaInicial() {
             </motion.div>
           </div>
 
-          <div className="hero-footer">
-            <TerminalWidget />
+          <div className="hero-lines">
+            <CircuitLines />
+          </div>
 
-            <Button color="green" onClick={() => navigate("/equipe")}>
+          <div className="hero-footer">
+            <div className="hero-footer-side hero-footer-start">
+              <TerminalWidget />
+            </div>
+
+            <Button
+              color="green"
+              size="lg"
+              onClick={() => navigate("/equipe")}
+            >
               COMEÇAR
             </Button>
 
-            <motion.div
-              className="hero-lock"
-              animate={{ opacity: [0.75, 1, 0.75] }}
-              transition={{ duration: 2.4, repeat: Infinity }}
-            >
-              <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
-                <rect
-                  x="5"
-                  y="10"
-                  width="14"
-                  height="10"
-                  rx="2"
-                  stroke="var(--magenta)"
-                  strokeWidth="1.6"
-                />
-                <path
-                  d="M8 10V7a4 4 0 1 1 8 0v3"
-                  stroke="var(--magenta)"
-                  strokeWidth="1.6"
-                />
-                <circle cx="12" cy="15" r="1.6" fill="var(--magenta)" />
-              </svg>
-            </motion.div>
+            <div className="hero-footer-side hero-footer-end">
+              <motion.div
+                className="hero-lock"
+                animate={{ opacity: [0.75, 1, 0.75] }}
+                transition={{ duration: 2.4, repeat: Infinity }}
+              >
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
+                  <rect
+                    x="5"
+                    y="10"
+                    width="14"
+                    height="10"
+                    rx="2"
+                    stroke="var(--magenta)"
+                    strokeWidth="1.6"
+                  />
+                  <path
+                    d="M8 10V7a4 4 0 1 1 8 0v3"
+                    stroke="var(--magenta)"
+                    strokeWidth="1.6"
+                  />
+                  <circle cx="12" cy="15" r="1.6" fill="var(--magenta)" />
+                </svg>
+              </motion.div>
+            </div>
           </div>
         </div>
       </div>

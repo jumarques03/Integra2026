@@ -23,14 +23,22 @@
   font-size: 0.95rem;
 }
 
+.equipe-lines {
+  position: relative;
+  height: 34px;
+  margin: 12px 4vw 0;
+}
+
 .equipe-grid {
+  position: relative;
+  z-index: 1;
   flex: 1;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   align-content: center;
   gap: 24px;
-  padding: 40px 8vw 60px;
+  padding: 20px 8vw 60px;
 }
 
 .equipe-card {

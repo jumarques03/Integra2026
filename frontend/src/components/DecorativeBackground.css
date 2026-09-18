@@ -8,31 +8,31 @@
 
 .decor-blob {
   position: absolute;
-  width: 46vw;
-  height: 46vw;
-  max-width: 620px;
-  max-height: 620px;
+  width: 52vw;
+  height: 52vw;
+  max-width: 700px;
+  max-height: 700px;
   border-radius: 50%;
-  filter: blur(90px);
+  filter: blur(70px);
 }
 
 .decor-blob-green {
-  top: -14%;
-  left: -12%;
-  background: radial-gradient(circle, rgba(43, 217, 188, 0.28), transparent 70%);
+  top: -16%;
+  left: -14%;
+  background: radial-gradient(circle, rgba(43, 217, 188, 0.55), transparent 68%);
 }
 
 .decor-blob-magenta {
-  top: -18%;
-  right: -14%;
-  background: radial-gradient(circle, rgba(214, 41, 158, 0.32), transparent 70%);
+  top: -20%;
+  right: -16%;
+  background: radial-gradient(circle, rgba(214, 41, 158, 0.58), transparent 68%);
 }
 
 .decor-snippet {
   position: absolute;
   font-size: 0.72rem;
   color: var(--green);
-  opacity: 0.35;
+  opacity: 0.5;
   letter-spacing: 0.05em;
 }
 
