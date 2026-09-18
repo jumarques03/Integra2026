@@ -1,0 +1,80 @@
+.equipe-hero {
+  text-align: center;
+  margin-top: 4vh;
+  padding: 0 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.equipe-tag {
+  font-size: 0.8rem;
+}
+
+.equipe-hero h1 {
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  margin: 6px 0 0;
+}
+
+.equipe-hero p {
+  color: var(--text-muted);
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.equipe-grid {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-content: center;
+  gap: 24px;
+  padding: 40px 8vw 60px;
+}
+
+.equipe-card {
+  width: 220px;
+  background: var(--card-bg);
+  border: 1.5px solid;
+  border-radius: var(--radius-lg);
+  padding: 30px 20px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.equipe-circle {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  border: 2.5px solid;
+  margin-bottom: 8px;
+}
+
+.equipe-nome {
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 0.04em;
+}
+
+.equipe-divider {
+  width: 100%;
+  height: 1px;
+  background: var(--border-subtle);
+  margin: 10px 0 4px;
+}
+
+.equipe-select {
+  font-weight: 700;
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+}
+
+@media (max-width: 560px) {
+  .equipe-card {
+    width: 100%;
+    max-width: 300px;
+  }
+}

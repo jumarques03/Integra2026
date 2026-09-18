@@ -1,0 +1,41 @@
+.decor-bg {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.decor-blob {
+  position: absolute;
+  width: 46vw;
+  height: 46vw;
+  max-width: 620px;
+  max-height: 620px;
+  border-radius: 50%;
+  filter: blur(90px);
+}
+
+.decor-blob-green {
+  top: -14%;
+  left: -12%;
+  background: radial-gradient(circle, rgba(43, 217, 188, 0.28), transparent 70%);
+}
+
+.decor-blob-magenta {
+  top: -18%;
+  right: -14%;
+  background: radial-gradient(circle, rgba(214, 41, 158, 0.32), transparent 70%);
+}
+
+.decor-snippet {
+  position: absolute;
+  font-size: 0.72rem;
+  color: var(--green);
+  opacity: 0.35;
+  letter-spacing: 0.05em;
+}
+
+.decor-snippet.is-magenta {
+  color: var(--magenta);
+}

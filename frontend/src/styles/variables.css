@@ -1,0 +1,22 @@
+:root {
+  --bg: #030303;
+  --bg-elevated: #0a0a0c;
+  --text: #f5f5f7;
+  --text-muted: #9c9ca3;
+
+  --magenta: #d6299e;
+  --green: #2bd9bc;
+  --purple: #8a3cff;
+  --orange: #d97c2b;
+  --blue: #2c9cec;
+  --yellow: #e8c93a;
+
+  --border-subtle: rgba(245, 245, 247, 0.1);
+  --card-bg: rgba(255, 255, 255, 0.02);
+
+  --font-display: "Space Grotesk", "Inter", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", "Consolas", monospace;
+
+  --radius-md: 10px;
+  --radius-lg: 16px;
+}

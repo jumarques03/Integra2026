@@ -1,0 +1,66 @@
+.btn-outline {
+  padding: 14px 34px;
+  border-radius: 999px;
+  border: 1.5px solid var(--green);
+  color: var(--text);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  font-size: 0.95rem;
+  background: rgba(43, 217, 188, 0.06);
+  transition: background 0.25s ease, box-shadow 0.25s ease;
+}
+
+.btn-outline:hover:not(:disabled) {
+  background: rgba(43, 217, 188, 0.14);
+  box-shadow: 0 0 22px rgba(43, 217, 188, 0.35);
+}
+
+.btn-outline:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.btn-outline.color-magenta {
+  border-color: var(--magenta);
+  background: rgba(214, 41, 158, 0.08);
+}
+.btn-outline.color-magenta:hover:not(:disabled) {
+  background: rgba(214, 41, 158, 0.16);
+  box-shadow: 0 0 22px rgba(214, 41, 158, 0.35);
+}
+
+.btn-outline.color-purple {
+  border-color: var(--purple);
+  background: rgba(138, 60, 255, 0.08);
+}
+.btn-outline.color-purple:hover:not(:disabled) {
+  background: rgba(138, 60, 255, 0.16);
+  box-shadow: 0 0 22px rgba(138, 60, 255, 0.35);
+}
+
+.btn-outline.color-orange {
+  border-color: var(--orange);
+  background: rgba(217, 124, 43, 0.08);
+}
+.btn-outline.color-orange:hover:not(:disabled) {
+  background: rgba(217, 124, 43, 0.16);
+  box-shadow: 0 0 22px rgba(217, 124, 43, 0.35);
+}
+
+.btn-outline.color-blue {
+  border-color: var(--blue);
+  background: rgba(44, 156, 236, 0.08);
+}
+.btn-outline.color-blue:hover:not(:disabled) {
+  background: rgba(44, 156, 236, 0.16);
+  box-shadow: 0 0 22px rgba(44, 156, 236, 0.35);
+}
+
+.btn-outline.color-yellow {
+  border-color: var(--yellow);
+  background: rgba(232, 201, 58, 0.08);
+}
+.btn-outline.color-yellow:hover:not(:disabled) {
+  background: rgba(232, 201, 58, 0.16);
+  box-shadow: 0 0 22px rgba(232, 201, 58, 0.35);
+}

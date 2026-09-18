@@ -1,0 +1,21 @@
+.back-btn {
+  width: 44px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text);
+  border-radius: var(--radius-md);
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.back-btn:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--green);
+}
+
+.back-btn-label {
+  font-size: 0.75rem;
+  color: var(--green);
+  letter-spacing: 0.05em;
+}

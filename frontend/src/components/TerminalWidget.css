@@ -1,0 +1,63 @@
+.terminal-widget {
+  width: 240px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  font-size: 0.72rem;
+}
+
+.terminal-dots {
+  display: flex;
+  gap: 6px;
+  padding: 8px 10px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.dot-magenta {
+  background: var(--magenta);
+}
+.dot-yellow {
+  background: var(--yellow);
+}
+.dot-green {
+  background: var(--green);
+}
+
+.terminal-body {
+  padding: 10px 12px 12px;
+  min-height: 78px;
+}
+
+.terminal-body p {
+  margin: 0 0 4px;
+  color: var(--text-muted);
+}
+
+.terminal-body .line-green {
+  color: var(--green);
+}
+
+.terminal-body .line-magenta {
+  color: var(--magenta);
+}
+
+.terminal-prompt {
+  color: var(--green) !important;
+}
+
+.cursor {
+  animation: blink 1s step-start infinite;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
