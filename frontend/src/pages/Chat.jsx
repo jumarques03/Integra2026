@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import Logo from "../components/Logo";
 import BackButton from "../components/BackButton";
 import DecorativeBackground from "../components/DecorativeBackground";
@@ -8,7 +8,7 @@ import PageTransition from "../components/PageTransition";
 import Stepper from "../components/Stepper";
 import TabGuardOverlay from "../components/TabGuardOverlay";
 import { useTabGuard } from "../hooks/useTabGuard";
-import { MENSAGENS_INICIAIS, RESPOSTAS_ENIGMA } from "../data/chatScript";
+import { streamChat } from "../api/chat";
 import { useAppStore } from "../store/useAppStore";
 import "./Chat.css";
 
@@ -18,18 +18,19 @@ function formatHora(date) {
 
 export default function Chat() {
   const navigate = useNavigate();
+  const ano = useAppStore((s) => s.ano);
   const equipe = useAppStore((s) => s.equipe);
+  const sessionId = useAppStore((s) => s.sessionId);
   const messages = useAppStore((s) => s.messages);
   const addMessage = useAppStore((s) => s.addMessage);
+  const updateMessageText = useAppStore((s) => s.updateMessageText);
   const finish = useAppStore((s) => s.finish);
   const desclassificar = useAppStore((s) => s.desclassificar);
   const desclassificado = useAppStore((s) => s.desclassificado);
 
   const [input, setInput] = useState("");
-  const [typing, setTyping] = useState(false);
-  const [userTurns, setUserTurns] = useState(0);
+  const [sending, setSending] = useState(false);
   const bottomRef = useRef(null);
-  const responseIndex = useRef(0);
   const seeded = useRef(false);
 
   const cor = equipe?.cor ?? "green";
@@ -44,64 +45,68 @@ export default function Chat() {
     onDisqualify: handleDisqualify,
   });
 
+  // Manda um turno (mensagem do aluno, ou "" para disparar as boas-vindas)
+  // pro backend e vai encaixando os pedaços do streaming na bolha do bot.
+  const runTurn = (userText) => {
+    setSending(true);
+
+    if (userText) {
+      addMessage({
+        id: `user-${Date.now()}`,
+        from: "user",
+        text: userText,
+        time: formatHora(new Date()),
+      });
+    }
+
+    const botId = `bot-${Date.now()}`;
+    addMessage({ id: botId, from: "bot", text: "", time: formatHora(new Date()) });
+
+    streamChat({
+      sessionId,
+      turma: ano.turmaKey,
+      messages,
+      userMessage: userText,
+      onToken: (chunk) => updateMessageText(botId, (prev) => prev + chunk),
+      onDone: (completed) => {
+        setSending(false);
+        if (completed) {
+          finish();
+          setTimeout(() => navigate("/resultado"), 1800);
+        }
+      },
+      onError: (msg) => {
+        updateMessageText(botId, (prev) => prev || `Ops, ${msg}`);
+        setSending(false);
+      },
+    });
+  };
+
   useEffect(() => {
-    if (!equipe) {
+    if (!equipe || !ano) {
       navigate("/equipe");
       return;
     }
     if (seeded.current) return;
     seeded.current = true;
-
-    MENSAGENS_INICIAIS.forEach((texto, i) => {
-      setTimeout(() => {
-        addMessage({
-          id: `bot-init-${i}`,
-          from: "bot",
-          text: texto,
-          time: formatHora(new Date()),
-        });
-      }, 300 + i * 700);
-    });
+    if (messages.length === 0) {
+      runTurn("");
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [equipe]);
+  }, [equipe, ano]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, typing]);
+  }, [messages]);
 
   const handleSend = () => {
     const texto = input.trim();
-    if (!texto) return;
-
-    addMessage({
-      id: `user-${Date.now()}`,
-      from: "user",
-      text: texto,
-      time: formatHora(new Date()),
-    });
+    if (!texto || sending) return;
     setInput("");
-    setUserTurns((n) => n + 1);
-    setTyping(true);
-
-    setTimeout(() => {
-      const resposta = RESPOSTAS_ENIGMA[responseIndex.current % RESPOSTAS_ENIGMA.length];
-      responseIndex.current += 1;
-      setTyping(false);
-      addMessage({
-        id: `bot-${Date.now()}`,
-        from: "bot",
-        text: resposta,
-        time: formatHora(new Date()),
-      });
-    }, 1100 + Math.random() * 500);
+    runTurn(texto);
   };
 
-  const handleConcluir = () => {
-    finish();
-    navigate("/resultado");
-  };
-
-  if (!equipe) return null;
+  if (!equipe || !ano) return null;
 
   return (
     <PageTransition>
@@ -132,8 +137,16 @@ export default function Chat() {
               >
                 {msg.from === "bot" && <span className="chat-avatar bot-avatar">&gt;_</span>}
                 <div className="chat-bubble">
-                  <p>{msg.text}</p>
-                  <span className="chat-time">{msg.time}</span>
+                  {msg.text ? (
+                    <p>{msg.text}</p>
+                  ) : (
+                    <div className="typing-bubble">
+                      <span className="typing-dot" />
+                      <span className="typing-dot" />
+                      <span className="typing-dot" />
+                    </div>
+                  )}
+                  {msg.text && <span className="chat-time">{msg.time}</span>}
                 </div>
                 {msg.from === "user" && (
                   <span className="chat-avatar user-avatar">
@@ -142,45 +155,26 @@ export default function Chat() {
                 )}
               </motion.div>
             ))}
-
-            <AnimatePresence>
-              {typing && (
-                <motion.div
-                  className="chat-row is-bot"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                >
-                  <span className="chat-avatar bot-avatar">&gt;_</span>
-                  <div className="chat-bubble typing-bubble">
-                    <span className="typing-dot" />
-                    <span className="typing-dot" />
-                    <span className="typing-dot" />
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
             <div ref={bottomRef} />
           </div>
 
           <div className="chat-footer">
-            <button
-              type="button"
-              className="chat-conclude"
-              disabled={userTurns === 0}
-              onClick={handleConcluir}
-            >
-              CONCLUIR DESAFIO →
-            </button>
             <div className="chat-input-row">
               <input
                 type="text"
                 value={input}
                 placeholder="digite sua mensagem..."
+                disabled={sending}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleSend()}
               />
-              <button type="button" className="chat-send" onClick={handleSend} aria-label="Enviar">
+              <button
+                type="button"
+                className="chat-send"
+                onClick={handleSend}
+                disabled={sending}
+                aria-label="Enviar"
+              >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                   <path
                     d="M5 12h13M13 6l6 6-6 6"

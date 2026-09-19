@@ -5,6 +5,7 @@ export const ANOS = [
     titulo: "ENSINO FUNDAMENTAL 1",
     subtitulo: "4º ao 5º ano",
     cor: "green",
+    turmaKey: "fundamental1",
   },
   {
     id: 2,
@@ -12,6 +13,7 @@ export const ANOS = [
     titulo: "ENSINO FUNDAMENTAL 2",
     subtitulo: "6º ao 7º ano",
     cor: "magenta",
+    turmaKey: "fundamental2_67",
   },
   {
     id: 3,
@@ -19,6 +21,7 @@ export const ANOS = [
     titulo: "ENSINO FUNDAMENTAL 2",
     subtitulo: "8º ao 9º ano",
     cor: "purple",
+    turmaKey: "fundamental2_89",
   },
   {
     id: 4,
@@ -26,6 +29,7 @@ export const ANOS = [
     titulo: "ENSINO MÉDIO REGULAR",
     subtitulo: "1º ao 3º ano",
     cor: "orange",
+    turmaKey: "medio_regular",
   },
   {
     id: 5,
@@ -33,5 +37,6 @@ export const ANOS = [
     titulo: "ENSINO MÉDIO TÉCNICO",
     subtitulo: "1º ao 3º ano",
     cor: "blue",
+    turmaKey: "medio_tecnico",
   },
 ];
