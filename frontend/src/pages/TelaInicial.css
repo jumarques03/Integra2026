@@ -1,4 +1,5 @@
 .hero-main {
+  position: relative;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -55,9 +56,13 @@
 }
 
 .hero-lines {
-  position: relative;
+  position: absolute;
+  top: 24%;
+  left: 0;
+  right: 0;
   height: 40px;
   margin: 0 4vw;
+  pointer-events: none;
 }
 
 .hero-footer {
@@ -82,14 +87,8 @@
   justify-content: flex-end;
 }
 
-.hero-lock {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  border: 1.5px solid rgba(214, 41, 158, 0.4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.hero-lock-icon {
+  filter: drop-shadow(0 0 14px rgba(214, 41, 158, 0.35));
 }
 
 @media (max-width: 720px) {
@@ -102,5 +101,9 @@
   .hero-footer-start,
   .hero-footer-end {
     justify-content: center;
+  }
+
+  .hero-lines {
+    display: none;
   }
 }

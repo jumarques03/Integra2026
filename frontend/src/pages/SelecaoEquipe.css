@@ -88,31 +88,6 @@
   letter-spacing: 0.06em;
 }
 
-.equipe-card.hoverfill-green:hover {
-  background: rgba(43, 217, 188, 0.2);
-  box-shadow: 0 0 30px rgba(43, 217, 188, 0.25);
-}
-.equipe-card.hoverfill-magenta:hover {
-  background: rgba(214, 41, 158, 0.2);
-  box-shadow: 0 0 30px rgba(214, 41, 158, 0.25);
-}
-.equipe-card.hoverfill-purple:hover {
-  background: rgba(138, 60, 255, 0.2);
-  box-shadow: 0 0 30px rgba(138, 60, 255, 0.25);
-}
-.equipe-card.hoverfill-orange:hover {
-  background: rgba(217, 124, 43, 0.2);
-  box-shadow: 0 0 30px rgba(217, 124, 43, 0.25);
-}
-.equipe-card.hoverfill-blue:hover {
-  background: rgba(44, 156, 236, 0.2);
-  box-shadow: 0 0 30px rgba(44, 156, 236, 0.25);
-}
-.equipe-card.hoverfill-yellow:hover {
-  background: rgba(232, 201, 58, 0.2);
-  box-shadow: 0 0 30px rgba(232, 201, 58, 0.25);
-}
-
 @media (max-width: 560px) {
   .equipe-card {
     width: 100%;

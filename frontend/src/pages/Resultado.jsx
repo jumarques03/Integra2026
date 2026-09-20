@@ -5,6 +5,7 @@ import Logo from "../components/Logo";
 import DecorativeBackground from "../components/DecorativeBackground";
 import PageTransition from "../components/PageTransition";
 import Button from "../components/Button";
+import CircuitLines from "../components/CircuitLines";
 import { useAppStore } from "../store/useAppStore";
 import "./Resultado.css";
 
@@ -40,26 +41,32 @@ export default function Resultado() {
           </div>
 
           <div className="resultado-center">
-            <motion.div
-              className={`resultado-lock text-${cor}`}
+            <div className="resultado-lines">
+              <CircuitLines />
+            </div>
+
+            <motion.svg
+              className={`resultado-lock-icon text-${cor}`}
+              width="56"
+              height="56"
+              viewBox="0 0 24 24"
+              fill="none"
               initial={{ scale: 0.4, opacity: 0, rotate: -25 }}
               animate={{ scale: 1, opacity: 1, rotate: 0 }}
               transition={{ type: "spring", stiffness: 140, damping: 12 }}
             >
-              <svg width="46" height="46" viewBox="0 0 24 24" fill="none">
-                <rect
-                  x="5"
-                  y="11"
-                  width="14"
-                  height="9"
-                  rx="2"
-                  stroke="currentColor"
-                  strokeWidth="1.6"
-                />
-                <path d="M8 11V8a4 4 0 0 1 8 0" stroke="currentColor" strokeWidth="1.6" />
-                <circle cx="12" cy="15" r="1.4" fill="currentColor" />
-              </svg>
-            </motion.div>
+              <rect
+                x="4"
+                y="11"
+                width="16"
+                height="10"
+                rx="2.5"
+                stroke="currentColor"
+                strokeWidth="1.6"
+              />
+              <path d="M7.5 11V8a4.5 4.5 0 0 1 9 0" stroke="currentColor" strokeWidth="1.6" />
+              <circle cx="12" cy="16" r="1.6" fill="currentColor" />
+            </motion.svg>
 
             <span className={`resultado-tag mono text-${cor}`}>
               &lt; acesso_concedido /&gt;

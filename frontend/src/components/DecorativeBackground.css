@@ -28,6 +28,26 @@
   background: radial-gradient(circle, rgba(214, 41, 158, 0.58), transparent 68%);
 }
 
+.decor-blob-green-soft {
+  width: 30vw;
+  height: 30vw;
+  max-width: 420px;
+  max-height: 420px;
+  top: 18%;
+  left: 8%;
+  background: radial-gradient(circle, rgba(43, 217, 188, 0.32), transparent 70%);
+}
+
+.decor-blob-magenta-soft {
+  width: 26vw;
+  height: 26vw;
+  max-width: 380px;
+  max-height: 380px;
+  bottom: 10%;
+  right: 14%;
+  background: radial-gradient(circle, rgba(214, 41, 158, 0.3), transparent 70%);
+}
+
 .decor-snippet {
   position: absolute;
   font-size: 0.72rem;

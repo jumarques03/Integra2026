@@ -60,6 +60,16 @@ export default function DecorativeBackground({ variant = "full" }) {
         animate={{ opacity: [0.6, 0.95, 0.6], scale: [1, 1.12, 1] }}
         transition={{ duration: 9, repeat: Infinity, ease: "easeInOut", delay: 1 }}
       />
+      <motion.div
+        className="decor-blob decor-blob-green-soft"
+        animate={{ opacity: [0.4, 0.65, 0.4] }}
+        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+      />
+      <motion.div
+        className="decor-blob decor-blob-magenta-soft"
+        animate={{ opacity: [0.35, 0.6, 0.35] }}
+        transition={{ duration: 11, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
+      />
       {snippets.map((s, i) => (
         <span
           key={i}
