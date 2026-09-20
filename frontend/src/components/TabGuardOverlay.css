@@ -23,6 +23,10 @@
   opacity: 0.85;
 }
 
+.tabguard-tag.text-green {
+  color: var(--green);
+}
+
 .tabguard-overlay h2 {
   font-size: clamp(1.6rem, 5vw, 2.4rem);
   margin: 6px 0 0;
@@ -44,4 +48,22 @@
   font-weight: 700;
   color: var(--magenta);
   margin-top: 6px;
+}
+
+.tabguard-btn {
+  margin-top: 18px;
+  padding: 14px 32px;
+  border-radius: 999px;
+  border: 1.5px solid var(--green);
+  background: rgba(43, 217, 188, 0.1);
+  color: var(--text);
+  font-weight: 700;
+  font-size: 0.9rem;
+  letter-spacing: 0.04em;
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.tabguard-btn:hover {
+  background: rgba(43, 217, 188, 0.2);
+  box-shadow: 0 0 24px rgba(43, 217, 188, 0.3);
 }

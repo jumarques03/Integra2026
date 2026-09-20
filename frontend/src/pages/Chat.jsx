@@ -39,7 +39,7 @@ export default function Chat() {
     navigate("/desclassificado");
   }, [desclassificar, navigate]);
 
-  const { ausente, segundosRestantes } = useTabGuard({
+  const { avisoAtivo, aguardandoConfirmacao, segundosRestantes, confirmarVolta } = useTabGuard({
     enabled: Boolean(equipe) && !desclassificado,
     onDisqualify: handleDisqualify,
   });
@@ -106,7 +106,13 @@ export default function Chat() {
   return (
     <PageTransition>
       <div className={`screen chat-screen theme-${cor}`}>
-        {ausente && <TabGuardOverlay segundos={segundosRestantes} />}
+        {avisoAtivo && (
+          <TabGuardOverlay
+            segundos={segundosRestantes}
+            aguardandoConfirmacao={aguardandoConfirmacao}
+            onConfirmar={confirmarVolta}
+          />
+        )}
         <DecorativeBackground variant="chat" />
         <div className="screen-content">
           <div className="top-bar chat-top-bar">
