@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import ReactMarkdown from "react-markdown";
 import Logo from "../components/Logo";
 import BackButton from "../components/BackButton";
 import DecorativeBackground from "../components/DecorativeBackground";
@@ -14,6 +15,15 @@ import "./Chat.css";
 
 function formatHora(date) {
   return date.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+}
+
+// A IA às vezes embrulha partes da resposta em blocos de código (``` ... ```),
+// provavelmente copiando o formato de exemplo do system prompt. Nesse chat
+// nunca existe código de verdade, então remove qualquer cerca de bloco de
+// código antes de renderizar como markdown (o texto de dentro vira parágrafo
+// normal).
+function limparMarkdown(texto) {
+  return texto.replace(/```[a-zA-Z]*\n?/g, "").trim();
 }
 
 export default function Chat() {
@@ -144,7 +154,9 @@ export default function Chat() {
                 {msg.from === "bot" && <span className="chat-avatar bot-avatar">&gt;_</span>}
                 <div className="chat-bubble">
                   {msg.text ? (
-                    <p>{msg.text}</p>
+                    <div className="chat-markdown">
+                      <ReactMarkdown>{limparMarkdown(msg.text)}</ReactMarkdown>
+                    </div>
                   ) : (
                     <div className="typing-bubble">
                       <span className="typing-dot" />
