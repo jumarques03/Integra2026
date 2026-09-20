@@ -43,11 +43,19 @@
   color: var(--magenta);
 }
 
+.tabguard-overlay strong.text-green {
+  color: var(--green);
+}
+
 .tabguard-count {
   font-size: 2.6rem;
   font-weight: 700;
   color: var(--magenta);
   margin-top: 6px;
+}
+
+.tabguard-count.text-green {
+  color: var(--green);
 }
 
 .tabguard-btn {

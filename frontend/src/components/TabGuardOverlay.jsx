@@ -30,7 +30,10 @@ export default function TabGuardOverlay({ segundos, aguardandoConfirmacao, onCon
 
           <span className="tabguard-tag mono text-green">&lt; de_volta /&gt;</span>
           <h2>VOCÊ VOLTOU</h2>
-          <p>clique abaixo para continuar de onde parou</p>
+          <p>
+            faltavam <strong className="text-green">{segundos}s</strong> pra desclassificação
+          </p>
+          <span className="tabguard-count mono text-green">{segundos}s</span>
           <button type="button" className="tabguard-btn" onClick={onConfirmar}>
             VOLTAR AO DESAFIO
           </button>

@@ -52,7 +52,10 @@ export function useTabGuard({ enabled, onDisqualify }) {
         }
       } else {
         saiuEmRef.current = null;
-        setSegundosRestantes(LIMITE_SEGUNDOS);
+        // Não reseta segundosRestantes aqui: fica congelado no valor que
+        // tinha quando a pessoa voltou, pra mostrar na tela de retorno
+        // (ex: "voltou com 4s restantes"). Só volta pra 10 quando ela
+        // sair de novo (recalculado do zero lá em cima).
         // A pessoa voltou, mas o aviso só sai da tela quando ela
         // confirmar clicando no botão (confirmarVolta).
         setPhase((p) => (p === "away" ? "return-pending" : p));
