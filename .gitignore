@@ -1,0 +1,29 @@
+# Config local do Claude Code (dev server launch config etc.) — não vai pro repo
+.claude/
+
+# Arquivos de sistema operacional
+.DS_Store
+Thumbs.db
+
+# Editores
+.vscode/
+.idea/
+*.swp
+
+# Variáveis de ambiente (segredos, chaves de API)
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+
+# Dependências (cada pacote já ignora a sua, isso é só um reforço)
+node_modules/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
