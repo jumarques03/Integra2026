@@ -16,7 +16,7 @@ export default function TelaInicial() {
   return (
     <PageTransition>
       <div className="screen">
-        <DecorativeBackground variant="hero" />
+        <DecorativeBackground />
         <div className="screen-content">
           <div className="top-bar">
             <BackButton to="/" />

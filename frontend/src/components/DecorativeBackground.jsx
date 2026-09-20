@@ -27,26 +27,9 @@ const SNIPPETS_CHAT = [
   { text: "0xA204", top: "72%", right: "1.5%", color: "magenta" },
 ];
 
-const SNIPPETS_HERO = [
-  { text: "</>", top: "10%", left: "6%" },
-  { text: "10110", top: "22%", left: "4%" },
-  { text: "{ }", top: "40%", left: "6%" },
-  { text: "0x2F91", top: "56%", left: "4%" },
-  { text: "const();", top: "9%", right: "5%", color: "magenta" },
-  { text: "01100", top: "22%", right: "7%", color: "magenta" },
-  { text: "fetch()", top: "40%", right: "5%", color: "magenta" },
-  { text: "0xA204", top: "56%", right: "7%", color: "magenta" },
-];
-
 export default function DecorativeBackground({ variant = "full" }) {
   const snippets =
-    variant === "full"
-      ? SNIPPETS_FULL
-      : variant === "chat"
-        ? SNIPPETS_CHAT
-        : variant === "hero"
-          ? SNIPPETS_HERO
-          : [];
+    variant === "full" ? SNIPPETS_FULL : variant === "chat" ? SNIPPETS_CHAT : [];
 
   return (
     <div className="decor-bg" aria-hidden="true">
