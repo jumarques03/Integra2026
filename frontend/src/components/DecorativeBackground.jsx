@@ -2,17 +2,17 @@ import { motion } from "framer-motion";
 import "./DecorativeBackground.css";
 
 const SNIPPETS_FULL = [
-  { text: "10110", top: "8%", left: "4%" },
-  { text: "01001010", top: "14%", left: "6%" },
-  { text: "11010", top: "20%", left: "8%" },
-  { text: "0x2F91", top: "34%", left: "3%" },
+  { text: "10110", top: "16%", left: "4%" },
+  { text: "01001010", top: "22%", left: "6%" },
+  { text: "11010", top: "28%", left: "8%" },
+  { text: "0x2F91", top: "38%", left: "3%" },
   { text: "01011", top: "68%", left: "5%" },
   { text: "10100110", top: "78%", left: "7%" },
   { text: "0xB61C", bottom: "8%", left: "5%" },
-  { text: "0xFF3A", top: "9%", right: "6%", color: "magenta" },
-  { text: "01100", top: "15%", right: "4%", color: "magenta" },
-  { text: "11001", top: "21%", right: "9%", color: "magenta" },
-  { text: "0x7D2A", top: "35%", right: "3%", color: "magenta" },
+  { text: "0xFF3A", top: "16%", right: "6%", color: "magenta" },
+  { text: "01100", top: "22%", right: "4%", color: "magenta" },
+  { text: "11001", top: "28%", right: "9%", color: "magenta" },
+  { text: "0x7D2A", top: "38%", right: "3%", color: "magenta" },
   { text: "10011", bottom: "16%", right: "10%", color: "magenta" },
   { text: "0xA204", bottom: "10%", right: "6%" },
   { text: "11101001", bottom: "26%", right: "4%", color: "magenta" },
@@ -27,9 +27,26 @@ const SNIPPETS_CHAT = [
   { text: "0xA204", top: "72%", right: "1.5%", color: "magenta" },
 ];
 
+const SNIPPETS_HERO = [
+  { text: "</>", top: "10%", left: "6%" },
+  { text: "10110", top: "22%", left: "4%" },
+  { text: "{ }", top: "40%", left: "6%" },
+  { text: "0x2F91", top: "56%", left: "4%" },
+  { text: "const();", top: "9%", right: "5%", color: "magenta" },
+  { text: "01100", top: "22%", right: "7%", color: "magenta" },
+  { text: "fetch()", top: "40%", right: "5%", color: "magenta" },
+  { text: "0xA204", top: "56%", right: "7%", color: "magenta" },
+];
+
 export default function DecorativeBackground({ variant = "full" }) {
   const snippets =
-    variant === "full" ? SNIPPETS_FULL : variant === "chat" ? SNIPPETS_CHAT : [];
+    variant === "full"
+      ? SNIPPETS_FULL
+      : variant === "chat"
+        ? SNIPPETS_CHAT
+        : variant === "hero"
+          ? SNIPPETS_HERO
+          : [];
 
   return (
     <div className="decor-bg" aria-hidden="true">

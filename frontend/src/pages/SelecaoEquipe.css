@@ -1,6 +1,14 @@
+.equipe-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+  padding: 20px 0 40px;
+}
+
 .equipe-hero {
   text-align: center;
-  margin-top: 4vh;
   padding: 0 20px;
   display: flex;
   flex-direction: column;
@@ -9,36 +17,35 @@
 }
 
 .equipe-tag {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
 }
 
 .equipe-hero h1 {
-  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  font-size: clamp(2rem, 4.5vw, 3rem);
   margin: 6px 0 0;
 }
 
 .equipe-hero p {
   color: var(--text-muted);
   margin: 0;
-  font-size: 0.95rem;
+  font-size: 1rem;
 }
 
 .equipe-lines {
   position: relative;
   height: 34px;
-  margin: 12px 4vw 0;
+  margin: 20px 4vw 0;
 }
 
 .equipe-grid {
   position: relative;
   z-index: 1;
-  flex: 1;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   align-content: center;
   gap: 24px;
-  padding: 20px 8vw 60px;
+  padding: 28px 8vw 0;
 }
 
 .equipe-card {
@@ -51,6 +58,7 @@
   flex-direction: column;
   align-items: center;
   gap: 10px;
+  transition: background-color 0.25s ease, box-shadow 0.25s ease;
 }
 
 .equipe-circle {
@@ -63,7 +71,7 @@
 
 .equipe-nome {
   font-weight: 700;
-  font-size: 0.95rem;
+  font-size: 1.05rem;
   letter-spacing: 0.04em;
 }
 
@@ -76,8 +84,33 @@
 
 .equipe-select {
   font-weight: 700;
-  font-size: 0.78rem;
+  font-size: 0.85rem;
   letter-spacing: 0.06em;
+}
+
+.equipe-card.hoverfill-green:hover {
+  background: rgba(43, 217, 188, 0.2);
+  box-shadow: 0 0 30px rgba(43, 217, 188, 0.25);
+}
+.equipe-card.hoverfill-magenta:hover {
+  background: rgba(214, 41, 158, 0.2);
+  box-shadow: 0 0 30px rgba(214, 41, 158, 0.25);
+}
+.equipe-card.hoverfill-purple:hover {
+  background: rgba(138, 60, 255, 0.2);
+  box-shadow: 0 0 30px rgba(138, 60, 255, 0.25);
+}
+.equipe-card.hoverfill-orange:hover {
+  background: rgba(217, 124, 43, 0.2);
+  box-shadow: 0 0 30px rgba(217, 124, 43, 0.25);
+}
+.equipe-card.hoverfill-blue:hover {
+  background: rgba(44, 156, 236, 0.2);
+  box-shadow: 0 0 30px rgba(44, 156, 236, 0.25);
+}
+.equipe-card.hoverfill-yellow:hover {
+  background: rgba(232, 201, 58, 0.2);
+  box-shadow: 0 0 30px rgba(232, 201, 58, 0.25);
 }
 
 @media (max-width: 560px) {
