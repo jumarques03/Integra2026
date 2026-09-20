@@ -1,6 +1,6 @@
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import Logo from "../components/Logo";
 import DecorativeBackground from "../components/DecorativeBackground";
 import PageTransition from "../components/PageTransition";
 import { ANOS } from "../data/anos";
@@ -10,6 +10,23 @@ import "./SelecaoAno.css";
 export default function SelecaoAno() {
   const navigate = useNavigate();
   const setAno = useAppStore((s) => s.setAno);
+  const equipe = useAppStore((s) => s.equipe);
+  const finishedAt = useAppStore((s) => s.finishedAt);
+  const desclassificado = useAppStore((s) => s.desclassificado);
+
+  // Se o aluno recarregou a página ou voltou pro início sem querer no meio
+  // de um jogo em andamento, retoma de onde parou (o progresso fica salvo
+  // no localStorage). Pra começar do zero de verdade, usa o botão Reiniciar.
+  useEffect(() => {
+    if (desclassificado) {
+      navigate("/desclassificado");
+    } else if (equipe && finishedAt) {
+      navigate("/resultado");
+    } else if (equipe) {
+      navigate("/chat");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleSelect = (ano) => {
     setAno(ano);
@@ -21,10 +38,6 @@ export default function SelecaoAno() {
       <div className="screen">
         <DecorativeBackground />
         <div className="screen-content">
-          <div className="top-bar">
-            <Logo />
-          </div>
-
           <div className="ano-main">
             <div className="ano-hero">
               <motion.h1
