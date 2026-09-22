@@ -14,7 +14,7 @@ const SNIPPETS_FULL = [
   { text: "11001", top: "28%", right: "9%", color: "magenta" },
   { text: "0x7D2A", top: "38%", right: "3%", color: "magenta" },
   { text: "10011", bottom: "16%", right: "10%", color: "magenta" },
-  { text: "0xA204", bottom: "10%", right: "6%" },
+  { text: "0xA204", bottom: "10%", right: "6%", color: "magenta" },
   { text: "11101001", bottom: "26%", right: "4%", color: "magenta" },
 ];
 

@@ -51,16 +51,17 @@ async def stream_chat_response(req: ChatRequest) -> AsyncGenerator[str, None]:
         yield _event({"type": "error", "message": f"Falha ao falar com a OpenAI: {exc}"})
         return
 
-    # Máquina de 3 fases para detectar o MARKER mesmo que ele chegue picado
-    # em vários pedacinhos (a API da OpenAI não garante nenhum tamanho de
-    # chunk): "deciding" -> ainda não sabemos se é o marcador; "strip_newline"
-    # -> marcador confirmado, só falta engolir a quebra de linha que vem
-    # logo depois dele (pode chegar num chunk seguinte); "streaming" -> resto
-    # do texto é só repassado direto.
+    # Busca o MARKER em qualquer posição do texto (a IA nem sempre obedece a
+    # instrução de colocá-lo estritamente antes de qualquer outra palavra —
+    # às vezes escreve algo antes). Sempre que ele aparecer, marca completed
+    # e remove o marcador (e a quebra de linha logo depois dele) do texto
+    # exibido, mesmo que venha picado em vários chunks: só liberamos o texto
+    # já confirmado como "não faz parte do marcador", segurando as últimas
+    # len(MARKER)-1 letras no buffer até a próxima rodada.
     pending = ""
-    phase = "deciding"
     completed = False
     display_text = ""
+    hold = len(MARKER) - 1
 
     def _flush(text: str):
         nonlocal display_text
@@ -68,44 +69,55 @@ async def stream_chat_response(req: ChatRequest) -> AsyncGenerator[str, None]:
             display_text += text
         return _event({"type": "token", "text": text})
 
+    # Se o marcador for consumido sem ainda sabermos o que vem depois dele
+    # (ex: chegou sozinho num chunk), esperamos o próximo pedaço de texto
+    # para decidir se engolimos uma quebra de linha logo em seguida.
+    awaiting_newline_strip = False
+
+    def _consume_marker(text: str) -> tuple[str, bool, bool]:
+        idx = text.find(MARKER)
+        if idx == -1:
+            return text, False, False
+        before = text[:idx]
+        after = text[idx + len(MARKER):]
+        if after == "":
+            return before, True, True
+        if after.startswith("\r\n"):
+            after = after[2:]
+        elif after.startswith("\n"):
+            after = after[1:]
+        return before + after, True, False
+
     try:
         async for chunk in stream:
             delta = chunk.choices[0].delta.content if chunk.choices else None
             if not delta:
                 continue
-            # Sempre acumula no buffer primeiro; cada fase abaixo só decide
-            # quanto desse buffer já pode ser liberado.
+
+            if awaiting_newline_strip:
+                if delta.startswith("\r\n"):
+                    delta = delta[2:]
+                elif delta.startswith("\n"):
+                    delta = delta[1:]
+                awaiting_newline_strip = False
+
             pending += delta
 
-            if phase == "deciding":
-                if len(pending) < len(MARKER):
-                    continue
-                if pending.startswith(MARKER):
-                    completed = True
-                    pending = pending[len(MARKER):]
-                    phase = "strip_newline"
-                else:
-                    phase = "streaming"
-
-            if phase == "strip_newline":
-                if not pending:
-                    continue
-                if pending.startswith("\r\n"):
-                    pending = pending[2:]
-                elif pending.startswith("\n"):
-                    pending = pending[1:]
-                phase = "streaming"
-
-            if phase == "streaming" and pending:
-                yield _flush(pending)
-                pending = ""
-
-        # Fim do stream: resposta terminou sem nunca sair da fase "deciding"
-        # (mais curta que o marcador) ou ainda esperando a quebra de linha.
-        if pending:
-            if phase == "deciding" and pending.startswith(MARKER):
+            pending, found, awaiting_newline_strip = _consume_marker(pending)
+            if found:
                 completed = True
-                pending = pending[len(MARKER):]
+
+            # Só libera o que já sabemos com certeza que não é (nem começo de)
+            # o marcador; segura o resto para a próxima iteração.
+            if len(pending) > hold:
+                flush_len = len(pending) - hold
+                yield _flush(pending[:flush_len])
+                pending = pending[flush_len:]
+
+        if pending:
+            pending, found, _ = _consume_marker(pending)
+            if found:
+                completed = True
             if pending:
                 yield _flush(pending)
     except Exception as exc:

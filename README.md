@@ -1,6 +1,6 @@
 # AI MYSTERY — INTEGRA 2026
 
-Jogo de enigmas gamificado com IA, feito para o evento **INTEGRA 2026** da FIAP School. Cada turma de alunos escolhe seu ano/série e sua equipe (cor), e conversa com um chatbot ("Mestre do Mistério") que propõe enigmas sequenciais adequados à faixa etária. Quando a equipe resolve todos os enigmas, o sistema libera a tela de vitória com o tempo gasto. Se alguém trocar de aba/minimizar a janela por tempo demais durante o desafio, a equipe é desclassificada.
+Jogo de enigmas gamificado com IA, feito para o evento **INTEGRA 2026** da FIAP School. Cada turma de alunos escolhe sua equipe (cor), e conversa com um chatbot ("Mestre do Mistério") que propõe enigmas sequenciais adequados à faixa etária. Quando a equipe resolve todos os enigmas, o sistema libera a tela de vitória com o tempo gasto. Se alguém trocar de aba/minimizar a janela por tempo demais durante o desafio, a equipe é desclassificada.
 
 É um monorepo com duas partes independentes:
 

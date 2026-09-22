@@ -18,6 +18,7 @@ export const useAppStore = create(
       finishedAt: null,
       messages: [],
       desclassificado: false,
+      enigmaConcluido: false,
 
       setAno: (ano) => set({ ano }),
 
@@ -29,6 +30,7 @@ export const useAppStore = create(
           finishedAt: null,
           messages: [],
           desclassificado: false,
+          enigmaConcluido: false,
         }),
 
       addMessage: (message) =>
@@ -51,6 +53,11 @@ export const useAppStore = create(
 
       finish: () => set({ finishedAt: Date.now() }),
 
+      // A IA já sinalizou que os enigmas acabaram, mas a navegação para a
+      // tela de resultado só acontece quando o aluno confirma clicando no
+      // botão "Concluir enigma" (ver Chat.jsx).
+      marcarEnigmaConcluido: () => set({ enigmaConcluido: true }),
+
       desclassificar: () => set({ desclassificado: true }),
 
       getElapsedMinutes: () => {
@@ -69,6 +76,7 @@ export const useAppStore = create(
           finishedAt: null,
           messages: [],
           desclassificado: false,
+          enigmaConcluido: false,
         }),
     }),
     { name: "ai-mistery-storage" },

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
+import { FaArrowLeft } from "react-icons/fa";
 import "./BackButton.css";
 
 export default function BackButton({ to }) {
@@ -35,20 +36,15 @@ export default function BackButton({ to }) {
             voltar
           </motion.span>
         ) : (
-          <motion.svg
+          <motion.span
             key="icon"
+            className="back-btn-icon"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            width="20"
-            height="14"
-            viewBox="0 0 20 14"
-            fill="none"
           >
-            <line x1="0" y1="1" x2="20" y2="1" stroke="currentColor" strokeWidth="1.6" />
-            <line x1="0" y1="7" x2="20" y2="7" stroke="currentColor" strokeWidth="1.6" />
-            <line x1="0" y1="13" x2="20" y2="13" stroke="currentColor" strokeWidth="1.6" />
-          </motion.svg>
+            <FaArrowLeft size={18} />
+          </motion.span>
         )}
       </AnimatePresence>
     </button>

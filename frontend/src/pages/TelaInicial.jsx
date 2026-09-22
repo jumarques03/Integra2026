@@ -76,31 +76,33 @@ export default function TelaInicial() {
               </Button>
 
               <div className="hero-footer-side hero-footer-end">
-                <motion.svg
-                  className="hero-lock-icon"
-                  width="52"
-                  height="52"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  animate={{ opacity: [0.75, 1, 0.75] }}
-                  transition={{ duration: 2.4, repeat: Infinity }}
-                >
-                  <rect
-                    x="4"
-                    y="10"
-                    width="16"
-                    height="11"
-                    rx="2.5"
-                    stroke="var(--magenta)"
-                    strokeWidth="1.6"
-                  />
-                  <path
-                    d="M7.5 10V7.5a4.5 4.5 0 0 1 9 0V10"
-                    stroke="var(--magenta)"
-                    strokeWidth="1.6"
-                  />
-                  <circle cx="12" cy="15.5" r="1.6" fill="var(--magenta)" />
-                </motion.svg>
+                <span className="hero-lock-badge">
+                  <motion.svg
+                    className="hero-lock-icon"
+                    width="52"
+                    height="52"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    animate={{ opacity: [0.75, 1, 0.75] }}
+                    transition={{ duration: 2.4, repeat: Infinity }}
+                  >
+                    <rect
+                      x="3  "
+                      y="10"
+                      width="16"
+                      height="11"
+                      rx="2.5"
+                      stroke="var(--magenta)"
+                      strokeWidth="1.6"
+                    />
+                    <path
+                      d="M7.5 10V7.5a4.5 4.5 0 0 1 9 0V10"
+                      stroke="var(--magenta)"
+                      strokeWidth="1.6"
+                    />
+                    <circle cx="12" cy="15.5" r="1.6" fill="var(--magenta)" />
+                  </motion.svg>
+                </span>
               </div>
             </div>
           </div>

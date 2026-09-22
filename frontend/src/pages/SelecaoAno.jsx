@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import DecorativeBackground from "../components/DecorativeBackground";
@@ -9,28 +8,33 @@ import "./SelecaoAno.css";
 
 export default function SelecaoAno() {
   const navigate = useNavigate();
+  const anoAtual = useAppStore((s) => s.ano);
   const setAno = useAppStore((s) => s.setAno);
   const equipe = useAppStore((s) => s.equipe);
   const finishedAt = useAppStore((s) => s.finishedAt);
   const desclassificado = useAppStore((s) => s.desclassificado);
+  const reset = useAppStore((s) => s.reset);
 
-  // Se o aluno recarregou a página ou voltou pro início sem querer no meio
-  // de um jogo em andamento, retoma de onde parou (o progresso fica salvo
-  // no localStorage). Pra começar do zero de verdade, usa o botão Reiniciar.
-  useEffect(() => {
-    if (desclassificado) {
-      navigate("/desclassificado");
-    } else if (equipe && finishedAt) {
-      navigate("/resultado");
-    } else if (equipe) {
-      navigate("/chat");
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
+  // Sempre mostra a grade de seleção (permite voltar até aqui mesmo com um
+  // jogo em andamento, para trocar de ano ou continuar com o mesmo).
   const handleSelect = (ano) => {
+    const mesmoAno = anoAtual?.id === ano.id;
+
+    if (!mesmoAno) {
+      // Ano diferente do que estava em andamento: recomeça tudo do zero.
+      reset();
+      setAno(ano);
+      navigate("/inicio");
+      return;
+    }
+
+    // Mesmo ano de antes: mantém a partida (equipe, sessão, mensagens) e só
+    // retoma de onde estava.
     setAno(ano);
-    navigate("/inicio");
+    if (desclassificado) navigate("/desclassificado");
+    else if (equipe && finishedAt) navigate("/resultado");
+    else if (equipe) navigate("/chat");
+    else navigate("/inicio");
   };
 
   return (
