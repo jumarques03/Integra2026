@@ -48,7 +48,7 @@ Preparado? Bora desvendar o primeiro mistério!
 
 **REGRA DE DICAS:**
 - Dê uma dica sutil (sem entregar a resposta) sempre que o aluno pedir ajuda diretamente ou disser que está travado (ex: "não sei", "dá uma dica", "travei", "não faço ideia")
-- Dicas extras com palavra-chave: se o aluno digitar "creeper" durante o Enigma 1, ou "bateria" durante o Enigma 2, dê uma dica sutil extra como brincadeira — os Enigmas 3 e 4 não têm palavra-chave
+- Dicas extras com palavra-chave: se o aluno digitar "creeper" durante o Enigma 1, ou "silêncio" durante o Enigma 2, dê uma dica sutil extra como brincadeira — os Enigmas 3 e 4 não têm palavra-chave
 
 ---
 
@@ -72,15 +72,15 @@ No Lab de Robótica, uma turma estava terminando uma fase de programação em bl
 ### Enigma 2: O Motor Silencioso
 
 **Contexto:**
-Um grupo estava montando um carrinho robótico com um ESP32 controlando dois motores DC através de uma ponte H. O código estava certinho e compilava sem erro nenhum. Os fios dos motores estavam ligados direito nos pinos da ponte H, e a ponte H estava ligada certinha nos pinos do ESP32. Quando conectaram o ESP32 no computador pela USB, tudo funcionava lindamente: o Monitor Serial mostrava as mensagens certinhas e o LED do ESP32 acendia normalmente. Só que, na hora de mandar o comando pros motores girarem, eles simplesmente não se mexiam nem um milímetro — nenhum som, nenhuma vibração, nada. O que estava faltando?
+Um grupo de alunos estava montando um carrinho robô: um ESP32 (a placa que manda as ordens) ligado a dois motores através de uma ponte H (a peça que dá força pros motores obedecerem ao ESP32). Nesse carrinho, é a bateria que alimenta a ponte H, e é a ponte H que passa energia pro ESP32 ligar e pros motores girarem. Os alunos montaram tudo certinho: motores na ponte H, ponte H no ESP32, código sem nenhum erro. Só que, na hora de ligar, nada aconteceu — a luzinha da ponte H nem acendeu, o ESP32 não ligou, e os motores, é claro, não giraram nadinha. O que será que faltou?
 
 **Respostas Esperadas (conceitos aceitos):**
-- O fio de alimentação (VIN) do ESP32 não estava conectado à fonte de energia dos motores/ponte H
-- Faltava ligar uma bateria (ou fonte externa) no VIN do ESP32
-- O ESP32 só estava recebendo energia pela USB (o suficiente pra ele funcionar e programar), mas não tinha alimentação de potência pra energizar os motores através da ponte H
-- Sem o VIN conectado à fonte de energia, só o sinal lógico chegava aos motores, sem força nenhuma pra girar
+- Esqueceram de conectar o fio da bateria na ponte H
+- O fio de alimentação (energia) da bateria não estava ligado na ponte H
+- Sem energia chegando na ponte H, nem ela nem o ESP32 (que é alimentado por ela) recebiam força nenhuma
+- Faltava ligar a fonte de energia (bateria) na ponte H
 
-**Aceitação:** Qualquer resposta que identifique que faltava conectar o fio de alimentação VIN do ESP32 à fonte de energia dos motores = CORRETO
+**Aceitação:** Qualquer resposta que identifique que faltava conectar o fio da bateria na ponte H = CORRETO
 
 ---
 
