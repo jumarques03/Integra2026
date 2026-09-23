@@ -5,6 +5,7 @@ import ReactMarkdown from "react-markdown";
 import Logo from "../components/Logo";
 import BackButton from "../components/BackButton";
 import Button from "../components/Button";
+import Cronometro from "../components/Cronometro";
 import DecorativeBackground from "../components/DecorativeBackground";
 import PageTransition from "../components/PageTransition";
 import Stepper from "../components/Stepper";
@@ -36,6 +37,7 @@ export default function Chat() {
   const addMessage = useAppStore((s) => s.addMessage);
   const updateMessageText = useAppStore((s) => s.updateMessageText);
   const finish = useAppStore((s) => s.finish);
+  const iniciarCronometro = useAppStore((s) => s.iniciarCronometro);
   const marcarEnigmaConcluido = useAppStore((s) => s.marcarEnigmaConcluido);
   const enigmaConcluido = useAppStore((s) => s.enigmaConcluido);
   const desclassificar = useAppStore((s) => s.desclassificar);
@@ -75,12 +77,20 @@ export default function Chat() {
     const botId = `bot-${Date.now()}`;
     addMessage({ id: botId, from: "bot", text: "", time: formatHora(new Date()) });
 
+    let cronometroIniciado = false;
+
     streamChat({
       sessionId,
       turma: ano.turmaKey,
       messages,
       userMessage: userText,
-      onToken: (chunk) => updateMessageText(botId, (prev) => prev + chunk),
+      onToken: (chunk) => {
+        if (!cronometroIniciado) {
+          cronometroIniciado = true;
+          iniciarCronometro();
+        }
+        updateMessageText(botId, (prev) => prev + chunk);
+      },
       onDone: (completed) => {
         setSending(false);
         if (completed) {
@@ -142,6 +152,8 @@ export default function Chat() {
               <span className="chat-status">
                 <i className="chat-status-dot" /> ONLINE AGORA
                 <span className="chat-status-equipe">· {equipe.nome}</span>
+                <span className="chat-status-sep">·</span>
+                <Cronometro className="chat-timer" />
               </span>
             </div>
             <Stepper step={2} />

@@ -26,7 +26,7 @@ export const useAppStore = create(
         set({
           equipe,
           sessionId: newSessionId(),
-          startedAt: Date.now(),
+          startedAt: null,
           finishedAt: null,
           messages: [],
           desclassificado: false,
@@ -51,6 +51,11 @@ export const useAppStore = create(
           ),
         })),
 
+      // O relógio só começa quando o primeiro enigma aparece na tela (primeira
+      // resposta da IA), e só uma vez por partida.
+      iniciarCronometro: () =>
+        set((state) => (state.startedAt ? state : { startedAt: Date.now() })),
+
       finish: () => set({ finishedAt: Date.now() }),
 
       // A IA já sinalizou que os enigmas acabaram, mas a navegação para a
@@ -60,11 +65,11 @@ export const useAppStore = create(
 
       desclassificar: () => set({ desclassificado: true }),
 
-      getElapsedMinutes: () => {
+      getElapsedMs: () => {
         const { startedAt, finishedAt } = get();
         if (!startedAt) return 0;
         const end = finishedAt ?? Date.now();
-        return Math.max(1, Math.round((end - startedAt) / 60000));
+        return Math.max(0, end - startedAt);
       },
 
       reset: () =>
@@ -79,6 +84,22 @@ export const useAppStore = create(
           enigmaConcluido: false,
         }),
     }),
-    { name: "ai-mistery-storage" },
+    {
+      name: "ai-mistery-storage",
+      // Mudou a lista de anos (o "4º ao 5º ano" virou dois cards): um estado
+      // salvo antes disso pode apontar para uma turma que não existe mais,
+      // então descarta a partida antiga em vez de quebrar o chat.
+      version: 1,
+      migrate: () => ({
+        ano: null,
+        equipe: null,
+        sessionId: null,
+        startedAt: null,
+        finishedAt: null,
+        messages: [],
+        desclassificado: false,
+        enigmaConcluido: false,
+      }),
+    },
   ),
 );

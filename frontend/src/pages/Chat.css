@@ -42,6 +42,11 @@
   font-weight: 700;
 }
 
+.chat-timer {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+}
+
 .chat-status-dot {
   width: 7px;
   height: 7px;

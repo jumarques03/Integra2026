@@ -18,7 +18,7 @@ export default function SelecaoAno() {
   // Sempre mostra a grade de seleção (permite voltar até aqui mesmo com um
   // jogo em andamento, para trocar de ano ou continuar com o mesmo).
   const handleSelect = (ano) => {
-    const mesmoAno = anoAtual?.id === ano.id;
+    const mesmoAno = anoAtual?.turmaKey === ano.turmaKey;
 
     if (!mesmoAno) {
       // Ano diferente do que estava em andamento: recomeça tudo do zero.

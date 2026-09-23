@@ -12,8 +12,18 @@ import "./SelecaoEquipe.css";
 export default function SelecaoEquipe() {
   const navigate = useNavigate();
   const setEquipe = useAppStore((s) => s.setEquipe);
+  const equipeAtual = useAppStore((s) => s.equipe);
+  const sessionId = useAppStore((s) => s.sessionId);
+  const finishedAt = useAppStore((s) => s.finishedAt);
 
   const handleSelect = (equipe) => {
+    // Mesma equipe de uma partida já iniciada (ex: voltou do chat sem querer):
+    // retoma de onde parou, sem zerar conversa nem cronômetro. Equipe
+    // diferente começa uma partida nova.
+    if (equipeAtual?.id === equipe.id && sessionId) {
+      navigate(finishedAt ? "/resultado" : "/chat");
+      return;
+    }
     setEquipe(equipe);
     navigate("/chat");
   };

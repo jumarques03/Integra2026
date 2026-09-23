@@ -7,23 +7,29 @@ import PageTransition from "../components/PageTransition";
 import Button from "../components/Button";
 import CircuitLines from "../components/CircuitLines";
 import { useAppStore } from "../store/useAppStore";
+import { formatarTempo } from "../utils/tempo";
 import "./Resultado.css";
 
 export default function Resultado() {
   const navigate = useNavigate();
   const equipe = useAppStore((s) => s.equipe);
   const startedAt = useAppStore((s) => s.startedAt);
-  const getElapsedMinutes = useAppStore((s) => s.getElapsedMinutes);
+  const finishedAt = useAppStore((s) => s.finishedAt);
+  const getElapsedMs = useAppStore((s) => s.getElapsedMs);
   const reset = useAppStore((s) => s.reset);
 
+  // Só dá pra ver o resultado depois que a IA confirmou a vitória; abrir
+  // /resultado pela URL no meio do jogo volta pro chat (ou pro início).
+  const liberado = Boolean(startedAt && finishedAt);
+
   useEffect(() => {
-    if (!startedAt) navigate("/");
+    if (!liberado) navigate(equipe ? "/chat" : "/");
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [startedAt]);
+  }, [liberado]);
 
-  if (!startedAt) return null;
+  if (!liberado) return null;
 
-  const minutos = getElapsedMinutes();
+  const tempo = formatarTempo(getElapsedMs());
   const cor = equipe?.cor ?? "green";
 
   const handleReiniciar = () => {
@@ -88,7 +94,7 @@ export default function Resultado() {
               transition={{ delay: 0.3 }}
             >
               <span className="resultado-em">EM</span>
-              <span className={`resultado-minutos text-${cor}`}>{minutos}</span>
+              <span className={`resultado-minutos text-${cor}`}>{tempo}</span>
               <span className="resultado-label">MINUTOS</span>
             </motion.div>
 
