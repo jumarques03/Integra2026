@@ -46,6 +46,7 @@ export default function Chat() {
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const bottomRef = useRef(null);
+  const inputRef = useRef(null);
   const seeded = useRef(false);
 
   const cor = equipe?.cor ?? "green";
@@ -124,6 +125,14 @@ export default function Chat() {
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  // Mantém o foco no campo de digitar assim que a resposta da IA termina de
+  // chegar, pra não precisar clicar na caixinha de novo a cada mensagem.
+  useEffect(() => {
+    if (!sending && !enigmaConcluido) {
+      inputRef.current?.focus();
+    }
+  }, [sending, enigmaConcluido]);
 
   const handleSend = () => {
     const texto = input.trim();
@@ -209,6 +218,7 @@ export default function Chat() {
             ) : (
               <div className="chat-input-row">
                 <input
+                  ref={inputRef}
                   type="text"
                   value={input}
                   placeholder="digite sua mensagem..."

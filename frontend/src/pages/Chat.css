@@ -1,5 +1,7 @@
 .chat-screen {
   --team-color: var(--green);
+  height: 100vh;
+  height: 100dvh;
 }
 
 .chat-screen.theme-magenta {
@@ -74,6 +76,7 @@
 
 .chat-body {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
   padding: 20px 8vw;
   display: flex;

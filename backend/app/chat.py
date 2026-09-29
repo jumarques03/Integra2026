@@ -1,4 +1,6 @@
 import json
+import random
+import re
 from collections.abc import AsyncGenerator
 
 from openai import AsyncOpenAI
@@ -6,7 +8,7 @@ from openai import AsyncOpenAI
 from . import db
 from .config import OPENAI_API_KEY, OPENAI_MODEL
 from .prompts import MARKER, get_prompt
-from .schemas import ChatRequest
+from .schemas import ChatRequest, HistoryMessage
 
 _client = AsyncOpenAI(api_key=OPENAI_API_KEY)
 
@@ -14,6 +16,32 @@ _client = AsyncOpenAI(api_key=OPENAI_API_KEY)
 # só para disparar a "mensagem de boas-vindas" definida no prompt — sem isso
 # precisaríamos de uma segunda rota/requisição só para abrir o chat.
 _KICKOFF_MESSAGE = "Vamos começar!"
+
+# Palavras-chave que liberam UMA dica cada, uma única vez por partida inteira
+# (não por enigma). O controle de "já foi usada" é feito aqui em código, em
+# cima do histórico da conversa — não depende da IA lembrar sozinha, porque
+# ela não faz isso de forma confiável (já testamos e ela se confunde entre
+# as duas palavras).
+_HINT_WORDS = ("rock", "future")
+
+_REPEATED_WORD_REPLIES = [
+    "Você já usou essa palavra nesse jogo! Ela não funciona mais — confia no que você já descobriu até aqui.",
+    "Essa palavra-chave já foi usada antes nessa partida, não dá pra usar de novo. Bora continuar tentando!",
+    "Essa dica já foi gasta! Ela só funciona uma vez por jogo. Você consegue continuar sem ela!",
+]
+
+
+def _find_hint_words(text: str) -> set[str]:
+    low = text.lower()
+    return {w for w in _HINT_WORDS if re.search(rf"\b{w}\b", low)}
+
+
+def _used_hint_words(history: list[HistoryMessage]) -> set[str]:
+    used: set[str] = set()
+    for h in history:
+        if h.role == "user":
+            used |= _find_hint_words(h.content)
+    return used
 
 
 def _event(payload: dict) -> str:
@@ -40,6 +68,37 @@ async def stream_chat_response(req: ChatRequest) -> AsyncGenerator[str, None]:
     else:
         yield _event({"type": "error", "message": "Mensagem vazia."})
         return
+
+    if user_message:
+        used_before = _used_hint_words(req.history)
+        words_now = _find_hint_words(user_message)
+        fresh_words = words_now - used_before
+        repeated_words = words_now & used_before
+
+        # Só palavra(s) repetida(s) e nenhuma nova: nem chama a IA, responde
+        # direto — assim a recusa é garantida por código, não depende da IA
+        # "lembrar" certo (na prática ela às vezes se confundia entre as
+        # duas palavras).
+        if repeated_words and not fresh_words:
+            reply = random.choice(_REPEATED_WORD_REPLIES)
+            await db.save_message(req.session_id, req.turma, "assistant", reply)
+            yield _event({"type": "token", "text": reply})
+            yield _event({"type": "done", "completed": False})
+            return
+
+        if fresh_words:
+            palavra = next(iter(fresh_words))
+            messages.append({
+                "role": "system",
+                "content": (
+                    f'[sinal do sistema, confirmado por código — não é o aluno falando] '
+                    f'A palavra-chave de dica "{palavra}" está sendo usada PELA PRIMEIRA VEZ '
+                    f"nesta conversa inteira (o sistema já conferiu isso, não é uma suposição "
+                    f'sua). Dê a dica do enigma atual normalmente, seguindo a REGRA DE DICAS. '
+                    f"Não se confunda com o uso de nenhuma outra palavra-chave em momentos "
+                    f"anteriores desta conversa — essa aqui, \"{palavra}\", é nova."
+                ),
+            })
 
     try:
         stream = await _client.chat.completions.create(
