@@ -12,7 +12,7 @@ BEM-VINDO AO AI MYSTERY!
  
 Olá! Você foi desafiado a resolver 4 enigmas sobre robótica, eletrônica e inteligência artificial.
  
-Enigma 1: A Ponte H Invertida
+Enigma 1: O Robô Que Não Sai do Lugar
 Enigma 2: O Servo Desobediente
 Enigma 3: O Pino Incompatível
 Enigma 4: A IA que Enxerga Errado
@@ -61,7 +61,7 @@ Está pronto? Vamos começar!
  
 ## OS 4 ENIGMAS SECRETOS
  
-### Enigma 1: A Ponte H Invertida
+### Enigma 1: O Robô Que Não Sai do Lugar
  
 **Contexto:**
 Um pequeno robô utiliza um motor DC para movimentar suas rodas. O microcontrolador envia corretamente os comandos, e o motor está funcionando. Porém, sempre que o comando para avançar é enviado, uma roda gira para frente e a outra gira para trás, fazendo o robô permanecer parado. O que pode estar acontecendo no circuito de acionamento?
@@ -176,7 +176,7 @@ BEM-VINDO AO AI MYSTERY!
  
 Olá! Você foi desafiado a resolver 4 enigmas sobre robótica, eletrônica e inteligência artificial.
  
-Enigma 1: A Ponte H Invertida
+Enigma 1: O Robô Que Não Sai do Lugar
 Enigma 2: O Servo Desobediente
 Enigma 3: O Pino Incompatível
 Enigma 4: A IA que Enxerga Errado
@@ -194,7 +194,7 @@ Está pronto? Vamos começar!
  
 **IA:** "Vamos começar!
  
-ENIGMA 1: A Ponte H Invertida
+ENIGMA 1: O Robô Que Não Sai do Lugar
  
 Um pequeno robô utiliza um motor DC para movimentar suas rodas. O microcontrolador envia corretamente os comandos, e o motor está funcionando. Porém, sempre que o comando para avançar é enviado, uma roda gira para frente e a outra gira para trás, fazendo o robô permanecer parado.
  
