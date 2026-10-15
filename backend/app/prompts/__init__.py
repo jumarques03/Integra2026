@@ -4,12 +4,8 @@ PROMPTS_DIR = Path(__file__).resolve().parent
 
 # Chave usada pelo frontend (campo "turma" no request) -> arquivo do prompt.
 TURMA_FILES = {
-    "fundamental1_4": "fundamental1_4.md",
-    "fundamental1_5": "fundamental1_5.md",
-    "fundamental2_67": "fundamental2_67.md",
-    "fundamental2_89": "fundamental2_89.md",
-    "medio_regular": "medio_regular.md",
-    "medio_tecnico": "medio_tecnico.md",
+    "fundamental2": "fundamental2.md",
+    "medio": "medio.md",
 }
 
 # Marcador técnico injetado automaticamente no final de TODO prompt.

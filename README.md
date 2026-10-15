@@ -65,12 +65,8 @@ Integra2026/
 │   │   ├── schemas.py         # modelos Pydantic do request (ChatRequest, HistoryMessage)
 │   │   └── prompts/
 │   │       ├── __init__.py    # mapeia turma -> arquivo .md e injeta o "marcador de vitória"
-│   │       ├── fundamental1_4.md    # prompt/enigmas do 4º ano
-│   │       ├── fundamental1_5.md    # prompt/enigmas do 5º ano
-│   │       ├── fundamental2_67.md   # prompt/enigmas do 6º ao 7º ano
-│   │       ├── fundamental2_89.md   # prompt/enigmas do 8º ao 9º ano
-│   │       ├── medio_regular.md     # prompt/enigmas do Ensino Médio Regular
-│   │       └── medio_tecnico.md     # prompt/enigmas do Ensino Médio Técnico
+│   │       ├── fundamental2.md      # prompt/enigmas do Ensino Fundamental 2 (PLACEHOLDER)
+│   │       └── medio.md             # prompt/enigmas do Ensino Médio (PLACEHOLDER)
 │   ├── data/
 │   │   └── conversations.db   # banco SQLite (gerado automaticamente, não versionado)
 │   ├── requirements.txt       # dependências Python
@@ -251,12 +247,10 @@ Com os dois servidores rodando, acesse `http://localhost:5173` no navegador e o 
 
 Cada arquivo em `backend/app/prompts/*.md` é o **prompt de sistema completo** daquela turma — é só texto/markdown, sem código. Para trocar os enigmas, a mensagem de boas-vindas, o tom de voz ou a mensagem de vitória de uma turma, basta editar o `.md` correspondente (veja o mapa em [`backend/app/prompts/__init__.py`](backend/app/prompts/__init__.py) → `TURMA_FILES`):
 
-- `fundamental1_4.md` → 4º ano
-- `fundamental1_5.md` → 5º ano
-- `fundamental2_67.md` → 6º ao 7º ano
-- `fundamental2_89.md` → 8º ao 9º ano
-- `medio_regular.md` → Ensino Médio Regular
-- `medio_tecnico.md` → Ensino Médio Técnico
+- `fundamental2.md` → Ensino Fundamental 2 (6º ao 9º ano)
+- `medio.md` → Ensino Médio (1º ao 3º ano)
+
+> Nesta branch (`duas-turmas`) os dois arquivos ainda são **placeholders** com enigmas genéricos de exemplo. Para colocar o conteúdo real, substitua os enigmas dentro do arquivo (mantendo os blocos `REGRA DE DICAS`, `REGRAS ESSENCIAIS` e `EASTER EGGS` e o campo `Dica` de cada enigma) e reinicie o backend. Os prompts das 6 turmas anteriores continuam na branch `main`.
 
 **Não precisa reescrever nem tocar no rodapé técnico** (`REGRA TÉCNICA OBRIGATÓRIA` / marcador `[[JOGO_CONCLUIDO]]`) — ele é injetado automaticamente pelo código em todos os prompts. Basta garantir que a "mensagem final de vitória" descrita no seu prompt seja clara o bastante para a IA saber exatamente quando o jogo terminou.
 
@@ -295,7 +289,7 @@ O backend usa **SQLite** (via `aiosqlite`) só para guardar um histórico bruto 
 CREATE TABLE messages (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     session_id TEXT NOT NULL,   -- UUID gerado no frontend ao escolher a equipe
-    turma TEXT NOT NULL,        -- ex: "fundamental1_4", "medio_tecnico"
+    turma TEXT NOT NULL,        -- ex: "fundamental2", "medio"
     role TEXT NOT NULL,         -- "user" ou "assistant"
     content TEXT NOT NULL,
     created_at TEXT NOT NULL DEFAULT (datetime('now'))

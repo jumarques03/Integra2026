@@ -86,10 +86,11 @@ export const useAppStore = create(
     }),
     {
       name: "ai-mistery-storage",
-      // Mudou a lista de anos (o "4º ao 5º ano" virou dois cards): um estado
-      // salvo antes disso pode apontar para uma turma que não existe mais,
-      // então descarta a partida antiga em vez de quebrar o chat.
-      version: 1,
+      // Mudou a lista de anos (agora são só 2 turmas): um estado salvo antes
+      // disso pode apontar para uma turma que não existe mais, então descarta
+      // a partida antiga em vez de quebrar o chat. Aumente a versão sempre
+      // que a lista de turmas em data/anos.js mudar.
+      version: 2,
       migrate: () => ({
         ano: null,
         equipe: null,
