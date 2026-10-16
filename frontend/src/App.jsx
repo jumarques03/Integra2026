@@ -1,6 +1,5 @@
 import { Navigate, Routes, Route, useLocation } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
-import SelecaoAno from "./pages/SelecaoAno";
 import TelaInicial from "./pages/TelaInicial";
 import SelecaoEquipe from "./pages/SelecaoEquipe";
 import Chat from "./pages/Chat";
@@ -22,12 +21,12 @@ export default function App() {
   return (
     <AnimatePresence mode="wait" initial={false}>
       <Routes location={location} key={location.pathname}>
-        <Route path="/" element={<Protegida><SelecaoAno /></Protegida>} />
-        <Route path="/inicio" element={<Protegida><TelaInicial /></Protegida>} />
+        <Route path="/" element={<Protegida><TelaInicial /></Protegida>} />
         <Route path="/equipe" element={<Protegida><SelecaoEquipe /></Protegida>} />
         <Route path="/chat" element={<Protegida><Chat /></Protegida>} />
         <Route path="/resultado" element={<Protegida><Resultado /></Protegida>} />
         <Route path="/desclassificado" element={<Desclassificado />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </AnimatePresence>
   );

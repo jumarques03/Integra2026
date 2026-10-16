@@ -11,7 +11,6 @@ function newSessionId() {
 export const useAppStore = create(
   persist(
     (set, get) => ({
-      ano: null,
       equipe: null,
       sessionId: null,
       startedAt: null,
@@ -19,8 +18,6 @@ export const useAppStore = create(
       messages: [],
       desclassificado: false,
       enigmaConcluido: false,
-
-      setAno: (ano) => set({ ano }),
 
       setEquipe: (equipe) =>
         set({
@@ -74,7 +71,6 @@ export const useAppStore = create(
 
       reset: () =>
         set({
-          ano: null,
           equipe: null,
           sessionId: null,
           startedAt: null,
@@ -86,13 +82,12 @@ export const useAppStore = create(
     }),
     {
       name: "ai-mistery-storage",
-      // Mudou a lista de anos (agora são só 2 turmas): um estado salvo antes
-      // disso pode apontar para uma turma que não existe mais, então descarta
-      // a partida antiga em vez de quebrar o chat. Aumente a versão sempre
-      // que a lista de turmas em data/anos.js mudar.
-      version: 2,
+      // A seleção de ano deixou de existir (um único prompt para todos): um
+      // estado salvo antes disso tem o campo "ano" e pode ser de uma partida
+      // de outro prompt, então descarta a partida antiga em vez de misturar.
+      // Aumente a versão sempre que o formato do estado salvo mudar.
+      version: 3,
       migrate: () => ({
-        ano: null,
         equipe: null,
         sessionId: null,
         startedAt: null,

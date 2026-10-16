@@ -1,6 +1,6 @@
 # AI MYSTERY — INTEGRA 2026
 
-Jogo de enigmas gamificado com IA, feito para o evento **INTEGRA 2026** da FIAP School. Cada turma de alunos escolhe sua equipe (cor), e conversa com um chatbot ("Mestre do Mistério") que propõe enigmas sequenciais adequados à faixa etária. Quando a equipe resolve todos os enigmas, o sistema libera a tela de vitória com o tempo gasto. Se alguém trocar de aba/minimizar a janela por tempo demais durante o desafio, a equipe é desclassificada.
+Jogo de enigmas gamificado com IA, feito para o evento **INTEGRA 2026** da FIAP School. Cada equipe de alunos escolhe sua cor e conversa com um chatbot ("Mestre do Mistério") que propõe enigmas sequenciais. Não há seleção de ano: existe um único prompt, igual para qualquer ano. Quando a equipe resolve todos os enigmas, o sistema libera a tela de vitória com o tempo gasto. Se alguém trocar de aba/minimizar a janela por tempo demais durante o desafio, a equipe é desclassificada.
 
 É um monorepo com duas partes independentes:
 
@@ -21,7 +21,7 @@ Jogo de enigmas gamificado com IA, feito para o evento **INTEGRA 2026** da FIAP 
   - [1. Backend](#1-backend)
   - [2. Frontend](#2-frontend)
 - [Variáveis de ambiente](#variáveis-de-ambiente)
-- [Como editar os enigmas de cada turma](#como-editar-os-enigmas-de-cada-turma)
+- [Como editar os enigmas](#como-editar-os-enigmas)
 - [Erros comuns e como resolver](#erros-comuns-e-como-resolver)
 - [Banco de dados](#banco-de-dados)
 - [Scripts úteis](#scripts-úteis)
@@ -44,7 +44,7 @@ Jogo de enigmas gamificado com IA, feito para o evento **INTEGRA 2026** da FIAP 
 ```
 
 - O **frontend** nunca fala com a OpenAI diretamente — ele só conversa com o backend, que guarda a `OPENAI_API_KEY` em segredo.
-- O **backend** é praticamente um proxy inteligente: recebe `{turma, session_id, history, message}`, monta o prompt de sistema certo para a turma, chama a OpenAI em streaming e repassa os tokens para o frontend em tempo real (NDJSON: uma linha JSON por evento).
+- O **backend** é praticamente um proxy inteligente: recebe `{turma, session_id, history, message}`, monta o prompt de sistema, chama a OpenAI em streaming e repassa os tokens para o frontend em tempo real (NDJSON: uma linha JSON por evento).
 - O **frontend** guarda o progresso do jogador no `localStorage` (via Zustand), então recarregar a página no meio de uma partida não perde o progresso.
 - Não existe autenticação/login: a "sessão" é só um UUID gerado no navegador quando a equipe é escolhida.
 
@@ -64,9 +64,8 @@ Integra2026/
 │   │   ├── db.py              # cria a tabela SQLite e salva cada mensagem trocada
 │   │   ├── schemas.py         # modelos Pydantic do request (ChatRequest, HistoryMessage)
 │   │   └── prompts/
-│   │       ├── __init__.py    # mapeia turma -> arquivo .md e injeta o "marcador de vitória"
-│   │       ├── fundamental2.md      # prompt/enigmas do Ensino Fundamental 2 (PLACEHOLDER)
-│   │       └── medio.md             # prompt/enigmas do Ensino Médio (PLACEHOLDER)
+│   │       ├── __init__.py    # mapeia a chave do prompt -> arquivo .md e injeta o "marcador de vitória"
+│   │       └── padrao.md      # prompt único: os 5 enigmas, as regras de dica e de segurança
 │   ├── data/
 │   │   └── conversations.db   # banco SQLite (gerado automaticamente, não versionado)
 │   ├── requirements.txt       # dependências Python
@@ -82,15 +81,13 @@ Integra2026/
     │   ├── store/
     │   │   └── useAppStore.js  # estado global (Zustand + persist no localStorage)
     │   ├── data/
-    │   │   ├── anos.js         # lista de anos/séries disponíveis (liga ao `turma` do backend)
     │   │   └── equipes.js      # lista de equipes/cores disponíveis
     │   ├── utils/
     │   │   └── tempo.js        # formata milissegundos em mm:ss
     │   ├── hooks/
     │   │   └── useTabGuard.js  # detecta troca de aba/minimização e desclassifica após 10s
     │   ├── pages/
-    │   │   ├── SelecaoAno.jsx       # tela 0: escolher o ano/série (define a `turma`)
-    │   │   ├── TelaInicial.jsx      # tela de apresentação do jogo (botão "Começar")
+    │   │   ├── TelaInicial.jsx      # tela inicial "/" (apresentação do jogo, botão "Começar")
     │   │   ├── SelecaoEquipe.jsx    # tela 1: escolher a cor da equipe (cria a sessão)
     │   │   ├── Chat.jsx             # tela 2: chat com a IA, onde o enigma é resolvido
     │   │   ├── Resultado.jsx        # tela de vitória (mostra tempo total)
@@ -110,26 +107,23 @@ Integra2026/
 
 As rotas são todas client-side (React Router), definidas em [`frontend/src/App.jsx`](frontend/src/App.jsx):
 
-1. **`/` — [SelecaoAno.jsx](frontend/src/pages/SelecaoAno.jsx)**
-   Tela inicial. O aluno escolhe o ano/série (define `ano.turmaKey`, que é a chave usada pelo backend para escolher o prompt certo). A grade de anos sempre aparece (dá para voltar até aqui mesmo com o chat em andamento). Escolher o **mesmo ano** da partida atual retoma de onde parou; escolher **outro ano** reinicia tudo do zero para aquele ano.
+1. **`/` — [TelaInicial.jsx](frontend/src/pages/TelaInicial.jsx)**
+   Tela de apresentação ("AI MYSTERY"). Só tem o botão **COMEÇAR**. Não existe mais seleção de ano: todo mundo joga com o mesmo prompt.
 
-2. **`/inicio` — [TelaInicial.jsx](frontend/src/pages/TelaInicial.jsx)**
-   Tela de apresentação ("AI MYSTERY"). Só tem o botão **COMEÇAR**.
-
-3. **`/equipe` — [SelecaoEquipe.jsx](frontend/src/pages/SelecaoEquipe.jsx)**
+2. **`/equipe` — [SelecaoEquipe.jsx](frontend/src/pages/SelecaoEquipe.jsx)**
    O aluno escolhe a cor da equipe. Ao escolher uma equipe nova, `setEquipe()` (em [useAppStore.js](frontend/src/store/useAppStore.js)) gera um novo `sessionId` (UUID) e zera as mensagens. Escolher **a mesma equipe** de uma partida já iniciada (ex: voltou do chat sem querer) retoma a partida sem zerar nada, nem o cronômetro.
 
-4. **`/chat` — [Chat.jsx](frontend/src/pages/Chat.jsx)**
+3. **`/chat` — [Chat.jsx](frontend/src/pages/Chat.jsx)**
    Tela principal do jogo. Ao entrar, dispara automaticamente uma primeira chamada ao backend com mensagem vazia (isso é o "gatilho" que faz a IA mandar a mensagem de boas-vindas do enigma, sem precisar de uma rota separada). Cada mensagem do aluno é enviada via `streamChat()` ([api/chat.js](frontend/src/api/chat.js)) e a resposta da IA vai aparecendo token a token (efeito de "digitando"). Durante essa tela, o **guarda de aba** fica ativo (ver seção abaixo).
 
    **Cronômetro:** o relógio começa (`iniciarCronometro()`, uma única vez por partida) quando a **primeira mensagem da IA começa a aparecer**, não quando a equipe é escolhida. Ele fica visível, discreto, ao lado de "ONLINE AGORA" no cabeçalho do chat ([Cronometro.jsx](frontend/src/components/Cronometro.jsx)) e é calculado a partir do horário salvo, então continua certo se a página for recarregada.
 
-5. Quando a IA detecta que **todos os enigmas foram resolvidos**, ela inclui um marcador técnico invisível na resposta final. O backend detecta esse marcador no meio do streaming e avisa o frontend via evento `{"type":"done","completed":true}`. O frontend então:
+4. Quando a IA detecta que **todos os enigmas foram resolvidos**, ela inclui um marcador técnico invisível na resposta final. O backend detecta esse marcador no meio do streaming e avisa o frontend via evento `{"type":"done","completed":true}`. O frontend então:
    - marca `finishedAt` (`finish()`), que **para o cronômetro** no instante em que a IA confirma a vitória;
    - troca o campo de digitar pelo botão **CONCLUIR ENIGMA** (não há redirecionamento automático);
    - ao clicar no botão, navega para **`/resultado` — [Resultado.jsx](frontend/src/pages/Resultado.jsx)**, que mostra o tempo total em `mm:ss` e um botão **REINICIAR**. A tela de resultado só abre depois que o enigma foi concluído (abrir `/resultado` pela URL no meio do jogo volta para o chat).
 
-6. Se o aluno sair da aba/minimizar por tempo demais, é redirecionado para **`/desclassificado` — [Desclassificado.jsx](frontend/src/pages/Desclassificado.jsx)**. Enquanto a equipe estiver desclassificada, **todas as outras rotas ficam bloqueadas** (pela URL ou pelo botão voltar do navegador, ver `Protegida` em [App.jsx](frontend/src/App.jsx)); o único caminho é o botão **REINICIAR**, que apaga ano, equipe, sessão, mensagens e cronômetro e volta para a seleção de ano. O mesmo `REINICIAR` existe na tela de resultado. Nada é reiniciado automaticamente. O histórico salvo no banco do backend não é apagado (fica como auditoria; uma nova partida gera um novo `session_id`).
+5. Se o aluno sair da aba/minimizar por tempo demais, é redirecionado para **`/desclassificado` — [Desclassificado.jsx](frontend/src/pages/Desclassificado.jsx)**. Enquanto a equipe estiver desclassificada, **todas as outras rotas ficam bloqueadas** (pela URL ou pelo botão voltar do navegador, ver `Protegida` em [App.jsx](frontend/src/App.jsx)); o único caminho é o botão **REINICIAR**, que apaga equipe, sessão, mensagens e cronômetro e volta para a tela inicial. O mesmo `REINICIAR` existe na tela de resultado. Nada é reiniciado automaticamente. O histórico salvo no banco do backend não é apagado (fica como auditoria; uma nova partida gera um novo `session_id`).
 
 ---
 
@@ -137,14 +131,14 @@ As rotas são todas client-side (React Router), definidas em [`frontend/src/App.
 
 O núcleo está em [`backend/app/chat.py`](backend/app/chat.py) e [`backend/app/prompts/__init__.py`](backend/app/prompts/__init__.py):
 
-- Cada turma tem seu próprio arquivo de prompt em `backend/app/prompts/*.md` (identidade da IA, tom de voz, lista de enigmas sequenciais, mensagem de boas-vindas, mensagem de vitória).
+- O prompt fica em `backend/app/prompts/padrao.md` (identidade da IA, tom de voz, lista de enigmas sequenciais, mensagem de boas-vindas, mensagem de vitória). O campo `turma` do request existe só por compatibilidade: o frontend sempre envia `"padrao"`.
 - Ao carregar cada prompt, o backend **acrescenta automaticamente um rodapé técnico** (`_FOOTER_TEMPLATE`) instruindo o modelo a, e somente quando o jogo for vencido, iniciar a mensagem final com um marcador invisível: `[[JOGO_CONCLUIDO]]`. O prompt instrui explicitamente a IA a nunca revelar esse marcador ao aluno.
 - O endpoint `POST /api/chat` (em [`main.py`](backend/app/main.py)) recebe `{session_id, turma, history, message}` e devolve uma resposta em **streaming NDJSON** (`application/x-ndjson`, uma linha JSON por evento):
   - `{"type": "token", "text": "..."}` — pedaço de texto da resposta;
   - `{"type": "done", "completed": true|false}` — fim da resposta; `completed=true` significa que o marcador de vitória foi detectado;
-  - `{"type": "error", "message": "..."}` — erro (turma inválida, mensagem vazia, falha na OpenAI, etc.).
+  - `{"type": "error", "message": "..."}` — erro (prompt desconhecido, mensagem vazia, falha na OpenAI, etc.).
 - `stream_chat_response()` procura o marcador `[[JOGO_CONCLUIDO]]` **em qualquer posição** do texto (a IA nem sempre o coloca no começo) e **mesmo que ele chegue picado em vários pedacinhos** do streaming da OpenAI (a API não garante o tamanho de cada chunk): ela segura no buffer só as últimas letras que ainda podem ser começo do marcador e libera o resto. O marcador nunca é enviado ao frontend — só o texto de "parabéns".
-- Cada mensagem (do aluno e da IA) é salva no SQLite via [`db.py`](backend/app/db.py), associada ao `session_id` e à `turma` — isso serve só como histórico/auditoria, não é usado para autenticação.
+- Cada mensagem (do aluno e da IA) é salva no SQLite via [`db.py`](backend/app/db.py), associada ao `session_id` — isso serve só como histórico/auditoria, não é usado para autenticação.
 - O frontend nunca reenvia o `system_prompt`: ele manda só o histórico (`history`) de mensagens visíveis, e o backend remonta o prompt de sistema a cada chamada.
 
 ---
@@ -162,7 +156,7 @@ Implementado em [`frontend/src/hooks/useTabGuard.js`](frontend/src/hooks/useTabG
 
 ## Persistência de estado no navegador
 
-Toda a store do jogo ([`frontend/src/store/useAppStore.js`](frontend/src/store/useAppStore.js)) usa **Zustand com `persist`**, salvando em `localStorage` sob a chave `ai-mistery-storage`. Isso inclui: ano escolhido, equipe, `sessionId`, horários de início/fim, mensagens do chat e status de desclassificação.
+Toda a store do jogo ([`frontend/src/store/useAppStore.js`](frontend/src/store/useAppStore.js)) usa **Zustand com `persist`**, salvando em `localStorage` sob a chave `ai-mistery-storage`. Isso inclui: equipe, `sessionId`, horários de início/fim, mensagens do chat e status de desclassificação.
 
 Consequência prática: **recarregar a página no meio de uma partida não reinicia o jogo** — o aluno volta exatamente de onde parou. A única forma de zerar de verdade é clicar em "REINICIAR" (chama `reset()`) nas telas de resultado/desclassificado, ou limpar o `localStorage` do navegador manualmente.
 
@@ -243,22 +237,21 @@ Com os dois servidores rodando, acesse `http://localhost:5173` no navegador e o 
 
 ---
 
-## Como editar os enigmas de cada turma
+## Como editar os enigmas
 
-Cada arquivo em `backend/app/prompts/*.md` é o **prompt de sistema completo** daquela turma — é só texto/markdown, sem código. Para trocar os enigmas, a mensagem de boas-vindas, o tom de voz ou a mensagem de vitória de uma turma, basta editar o `.md` correspondente (veja o mapa em [`backend/app/prompts/__init__.py`](backend/app/prompts/__init__.py) → `TURMA_FILES`):
+O arquivo `backend/app/prompts/padrao.md` é o **prompt de sistema completo** — é só texto/markdown, sem código. Para trocar os enigmas, a mensagem de boas-vindas, o tom de voz ou a mensagem de vitória, basta editar esse `.md` (o mapa chave -> arquivo está em [`backend/app/prompts/__init__.py`](backend/app/prompts/__init__.py) → `TURMA_FILES`).
 
-- `fundamental2.md` → Ensino Fundamental 2 (6º ao 9º ano)
-- `medio.md` → Ensino Médio (1º ao 3º ano)
+**Não precisa reescrever nem tocar no rodapé técnico** (`REGRA TÉCNICA OBRIGATÓRIA` / marcador `[[JOGO_CONCLUIDO]]`) — ele é injetado automaticamente pelo código. Basta garantir que a "mensagem final de vitória" descrita no prompt seja clara o bastante para a IA saber exatamente quando o jogo terminou.
 
-> Nesta branch (`duas-turmas`) os dois arquivos ainda são **placeholders** com enigmas genéricos de exemplo. Para colocar o conteúdo real, substitua os enigmas dentro do arquivo (mantendo os blocos `REGRA DE DICAS`, `REGRAS ESSENCIAIS` e `EASTER EGGS` e o campo `Dica` de cada enigma) e reinicie o backend. Os prompts das 6 turmas anteriores continuam na branch `main`.
+Depois de editar o `.md`, **reinicie o backend** (rode `iniciar.bat` de novo) para a mudança ter efeito — os prompts são carregados uma vez na inicialização (`PROMPTS` em `prompts/__init__.py`) e o `--reload` do uvicorn **não** observa arquivos `.md`.
 
-**Não precisa reescrever nem tocar no rodapé técnico** (`REGRA TÉCNICA OBRIGATÓRIA` / marcador `[[JOGO_CONCLUIDO]]`) — ele é injetado automaticamente pelo código em todos os prompts. Basta garantir que a "mensagem final de vitória" descrita no seu prompt seja clara o bastante para a IA saber exatamente quando o jogo terminou.
+**Ao mudar a quantidade de enigmas**, ajuste também: a lista na mensagem de boas-vindas, o texto "todos os N enigmas", a seção `FASE 2: FIM DE JOGO` (qual é o último enigma) e o exemplo de interação. Cada enigma precisa do campo `Dica`.
 
-Depois de editar um `.md`, **reinicie o backend** (rode `iniciar.bat` de novo) para a mudança ter efeito — os prompts são carregados uma vez na inicialização (`PROMPTS` em `prompts/__init__.py`) e o `--reload` do uvicorn **não** observa arquivos `.md`.
+**Palavras-chave de dica:** se a mensagem do aluno contiver `rock` ou `future`, a IA dá a dica **do enigma em que o aluno está agora**. Cada palavra libera uma dica **uma única vez no jogo inteiro** (no máximo 2 dicas por partida). Esse limite é garantido pelo código do backend (`backend/app/chat.py`: confere no histórico se a palavra já foi usada; se foi, responde direto sem chamar a IA) — não depende da IA lembrar. Pedir dica sem a palavra-chave é recusado pelas regras `REGRA DE DICAS` e `EASTER EGGS` do prompt, mas aí a obediência depende do modelo, que às vezes cede. Para trocar as palavras, altere `_HINT_WORDS` em `chat.py` e os blocos de regra no `.md`.
 
-**Palavras-chave de dica:** em todos os prompts, se a mensagem do aluno contiver `rock` ou `future`, a IA dá uma dica sutil **do enigma em que o aluno está agora** (o último apresentado e ainda não resolvido), seja o 1, 2, 3 ou 4 — não existe mais palavra "do enigma 1" ou "do enigma 2". A regra está nos blocos `REGRA DE DICAS` e `EASTER EGGS` de cada `.md`; para trocar as palavras, altere os dois blocos em todos os arquivos. Observação: o modelo nem sempre obedece à parte "sem a palavra-chave, não dar dica" (um aluno que pede dica sem a palavra pode ser atendido).
+**Resposta com mais de uma solução válida:** nos enigmas de ordem/atribuição, confira se as pistas levam a uma única resposta. Se mais de uma satisfaz as pistas, liste todas em "Respostas Esperadas" (ou acrescente uma pista) para não marcar como errada uma resposta logicamente certa.
 
-Para adicionar uma turma nova: crie o `.md` e adicione uma entrada em `TURMA_FILES`, depois adicione o card correspondente em [`frontend/src/data/anos.js`](frontend/src/data/anos.js) (o campo `turmaKey` precisa bater com a chave usada em `TURMA_FILES`).
+Para usar **mais de um prompt** de novo (por exemplo, um por ano): crie outro `.md`, adicione a chave em `TURMA_FILES` e faça o frontend enviar essa chave em `turma` (hoje fixa em `frontend/src/api/chat.js`, constante `TURMA`).
 
 ---
 
@@ -275,7 +268,7 @@ Para adicionar uma turma nova: crie o `.md` e adicione uma entrada em `TURMA_FIL
 | `iniciar.bat` diz que Python/Node não foi encontrado | Python ou Node.js não instalado (ou fora do PATH) | Instale o Python 3 (marque "Add python.exe to PATH") e o Node.js LTS, feche e abra o `iniciar.bat` de novo |
 | A IA responde com enigmas/textos antigos depois de editar um prompt | O backend ainda está com o prompt antigo em memória | Rode `iniciar.bat` de novo (ele reinicia o backend) |
 | Progresso do jogo "preso" numa tela errada ao recarregar | Estado antigo salvo no `localStorage` (`ai-mistery-storage`) | Clique em "REINICIAR" na tela de resultado/desclassificado, ou limpe o `localStorage` do site nas ferramentas de desenvolvedor do navegador |
-| A IA nunca marca o jogo como vencido (não navega para `/resultado`) | O prompt `.md` da turma não descreve claramente a "mensagem final de vitória" que o modelo deve emitir quando os enigmas acabam | Revise o `.md` da turma — a regra técnica só funciona se o prompt deixar claro quando o jogo terminou de verdade |
+| A IA nunca marca o jogo como vencido (não navega para `/resultado`) | O prompt `.md` não descreve claramente a "mensagem final de vitória" que o modelo deve emitir quando os enigmas acabam | Revise o `.md` — a regra técnica só funciona se o prompt deixar claro quando o jogo terminou de verdade |
 | Banco `conversations.db` corrompido ou com dados de teste indesejados | Testes locais anteriores | Pare o backend, apague `backend/data/conversations.db*` (será recriado do zero na próxima subida) — **isso apaga todo o histórico de conversas salvo** |
 | Erro de import do `python-dotenv` ou variáveis do `.env` não carregam | `.env` não existe ainda (só o `.env.example`) | Copie `backend/.env.example` para `backend/.env` (e o mesmo para o frontend) antes de rodar |
 
@@ -289,7 +282,7 @@ O backend usa **SQLite** (via `aiosqlite`) só para guardar um histórico bruto 
 CREATE TABLE messages (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     session_id TEXT NOT NULL,   -- UUID gerado no frontend ao escolher a equipe
-    turma TEXT NOT NULL,        -- ex: "fundamental2", "medio"
+    turma TEXT NOT NULL,        -- hoje sempre "padrao"
     role TEXT NOT NULL,         -- "user" ou "assistant"
     content TEXT NOT NULL,
     created_at TEXT NOT NULL DEFAULT (datetime('now'))

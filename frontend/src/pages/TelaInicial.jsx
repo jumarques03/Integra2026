@@ -1,6 +1,5 @@
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import BackButton from "../components/BackButton";
 import DecorativeBackground from "../components/DecorativeBackground";
 import PageTransition from "../components/PageTransition";
 import TerminalWidget from "../components/TerminalWidget";
@@ -18,10 +17,6 @@ export default function TelaInicial() {
       <div className="screen">
         <DecorativeBackground />
         <div className="screen-content">
-          <div className="top-bar">
-            <BackButton to="/" />
-          </div>
-
           <div className="hero-main">
             <div className="hero-center">
               <motion.span

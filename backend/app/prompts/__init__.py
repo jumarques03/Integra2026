@@ -3,9 +3,9 @@ from pathlib import Path
 PROMPTS_DIR = Path(__file__).resolve().parent
 
 # Chave usada pelo frontend (campo "turma" no request) -> arquivo do prompt.
+# Hoje existe um único prompt, usado por qualquer ano.
 TURMA_FILES = {
-    "fundamental2": "fundamental2.md",
-    "medio": "medio.md",
+    "padrao": "padrao.md",
 }
 
 # Marcador técnico injetado automaticamente no final de TODO prompt.

@@ -30,7 +30,6 @@ function limparMarkdown(texto) {
 
 export default function Chat() {
   const navigate = useNavigate();
-  const ano = useAppStore((s) => s.ano);
   const equipe = useAppStore((s) => s.equipe);
   const sessionId = useAppStore((s) => s.sessionId);
   const messages = useAppStore((s) => s.messages);
@@ -82,7 +81,6 @@ export default function Chat() {
 
     streamChat({
       sessionId,
-      turma: ano.turmaKey,
       messages,
       userMessage: userText,
       onToken: (chunk) => {
@@ -110,7 +108,7 @@ export default function Chat() {
   };
 
   useEffect(() => {
-    if (!equipe || !ano) {
+    if (!equipe) {
       navigate("/equipe");
       return;
     }
@@ -120,7 +118,7 @@ export default function Chat() {
       runTurn("");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [equipe, ano]);
+  }, [equipe]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -141,7 +139,7 @@ export default function Chat() {
     runTurn(texto);
   };
 
-  if (!equipe || !ano) return null;
+  if (!equipe) return null;
 
   return (
     <PageTransition>

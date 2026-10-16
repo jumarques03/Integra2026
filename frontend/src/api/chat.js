@@ -1,5 +1,9 @@
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
+// Hoje existe um único prompt (backend/app/prompts/padrao.md), igual para
+// qualquer ano. A chave precisa bater com TURMA_FILES no backend.
+const TURMA = "padrao";
+
 // Converte as mensagens do jeito que a UI guarda ({from:"user"|"bot", text})
 // para o formato que o backend espera ({role:"user"|"assistant", content}).
 function toHistory(messages) {
@@ -16,13 +20,12 @@ function toHistory(messages) {
  * Eventos possíveis: {type:"token", text}, {type:"done", completed},
  * {type:"error", message}.
  *
- * @param {{sessionId:string, turma:string, messages:Array, userMessage?:string,
+ * @param {{sessionId:string, messages:Array, userMessage?:string,
  *   onToken:(text:string)=>void, onDone:(completed:boolean)=>void,
  *   onError:(message:string)=>void}} params
  */
 export async function streamChat({
   sessionId,
-  turma,
   messages,
   userMessage = "",
   onToken,
@@ -36,7 +39,7 @@ export async function streamChat({
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         session_id: sessionId,
-        turma,
+        turma: TURMA,
         history: toHistory(messages),
         message: userMessage,
       }),

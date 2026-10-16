@@ -35,7 +35,7 @@ export default function SelecaoEquipe() {
         <div className="screen-content">
           <div className="top-bar">
             <Stepper step={1} />
-            <BackButton to="/inicio" />
+            <BackButton to="/" />
           </div>
 
           <div className="equipe-main">
