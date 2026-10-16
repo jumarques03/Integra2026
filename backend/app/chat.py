@@ -43,12 +43,6 @@ _RESPOSTAS_AGUARDANDO_SENHA = [
 ]
 
 
-def _aguardando_palavra_passe(history: list[HistoryMessage]) -> bool:
-    # A IA só fala em "palavra-passe" quando o aluno chegou ao Enigma 5
-    # bloqueado, então isso indica que o jogo está esperando a palavra-passe.
-    return any(h.role == "assistant" and "palavra-passe" in h.content.lower() for h in history)
-
-
 def _find_hint_words(text: str) -> set[str]:
     low = text.lower()
     return {w for w in _HINT_WORDS if re.search(rf"\b{w}\b", low)}
@@ -84,8 +78,25 @@ def _e_palavra_passe(texto: str) -> bool:
     return _normalizar_senha(texto) == _SENHA_NORMALIZADA
 
 
-def _palavra_passe_ja_dita(history: list[HistoryMessage]) -> bool:
-    return any(h.role == "user" and _e_palavra_passe(h.content) for h in history)
+def _estado_portao(history: list[HistoryMessage], mensagem: str) -> tuple[bool, bool, bool, bool]:
+    """Devolve (aguardando, desbloqueado, senha_agora, senha_repetida).
+
+    A palavra-passe só vale DEPOIS que a IA avisou que o Enigma 5 está
+    bloqueado (o aviso sempre cita "palavra-passe"). Digitá-la antes da hora,
+    por exemplo no Enigma 1, não libera nada e não fica guardada.
+    """
+    aguardando = False
+    desbloqueado = False
+    for h in history:
+        if h.role == "assistant":
+            if "palavra-passe" in h.content.lower():
+                aguardando = True
+        elif aguardando and _e_palavra_passe(h.content):
+            desbloqueado = True
+    e_senha = bool(mensagem) and _e_palavra_passe(mensagem)
+    senha_agora = e_senha and aguardando and not desbloqueado
+    senha_repetida = e_senha and desbloqueado
+    return aguardando, desbloqueado or senha_agora, senha_agora, senha_repetida
 
 
 def _event(payload: dict) -> str:
@@ -95,11 +106,12 @@ def _event(payload: dict) -> str:
 async def stream_chat_response(req: ChatRequest) -> AsyncGenerator[str, None]:
     user_message = req.message.strip()
 
-    # O Enigma 5 só é liberado quando uma mensagem do aluno é a palavra-passe.
-    # Enquanto isso não acontece, o texto dele nem entra no prompt da IA.
-    senha_agora = bool(user_message) and _e_palavra_passe(user_message)
-    senha_antes = _palavra_passe_ja_dita(req.history)
-    desbloqueado = senha_agora or senha_antes
+    # O Enigma 5 só é liberado quando uma mensagem do aluno, enviada DEPOIS do
+    # aviso de bloqueio, é a palavra-passe. Enquanto isso não acontece, o texto
+    # dele nem entra no prompt da IA.
+    aguardando, desbloqueado, senha_agora, senha_repetida = _estado_portao(
+        req.history, user_message
+    )
 
     system_prompt = get_prompt(req.turma, desbloqueado)
     if system_prompt is None:
@@ -120,8 +132,8 @@ async def stream_chat_response(req: ChatRequest) -> AsyncGenerator[str, None]:
         yield _event({"type": "error", "message": "Mensagem vazia."})
         return
 
-    if senha_agora:
-        if senha_antes:
+    if senha_agora or senha_repetida:
+        if senha_repetida:
             aviso = (
                 "[sinal do sistema, confirmado por código — não é o aluno falando] "
                 "O aluno repetiu a palavra-passe, que já tinha sido aceita antes. O Enigma 5 "
@@ -148,7 +160,7 @@ async def stream_chat_response(req: ChatRequest) -> AsyncGenerator[str, None]:
 
         # Esperando a palavra-passe (Enigma 4 resolvido, Enigma 5 trancado):
         # não existe dica para dar, então responde direto, sem chamar a IA.
-        if words_now and not desbloqueado and _aguardando_palavra_passe(req.history):
+        if words_now and not desbloqueado and aguardando:
             reply = random.choice(_RESPOSTAS_AGUARDANDO_SENHA)
             await db.save_message(req.session_id, req.turma, "assistant", reply)
             yield _event({"type": "token", "text": reply})
