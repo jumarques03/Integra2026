@@ -1,3 +1,4 @@
+import re
 from pathlib import Path
 
 PROMPTS_DIR = Path(__file__).resolve().parent
@@ -36,15 +37,34 @@ fora de escopo, normalmente.
 """
 
 
-def _load(filename: str) -> str:
+# O .md pode ter trechos que só existem em um dos dois estados do jogo:
+#   <!--BLOQUEADO:INICIO--> ... <!--BLOQUEADO:FIM-->  só vale ANTES da palavra-passe
+#   <!--LIBERADO:INICIO-->  ... <!--LIBERADO:FIM-->   só vale DEPOIS da palavra-passe
+# O texto do Enigma 5 fica dentro do bloco LIBERADO: enquanto a palavra-passe
+# não for dita, ele nem chega à IA (não tem como ela vazar ou apresentar).
+_BLOCO_BLOQUEADO = re.compile(r"<!--BLOQUEADO:INICIO-->.*?<!--BLOQUEADO:FIM-->\n?", re.DOTALL)
+_BLOCO_LIBERADO = re.compile(r"<!--LIBERADO:INICIO-->.*?<!--LIBERADO:FIM-->\n?", re.DOTALL)
+_MARCAS = re.compile(r"<!--(?:BLOQUEADO|LIBERADO):(?:INICIO|FIM)-->\n?")
+
+
+def _renderizar(text: str, desbloqueado: bool) -> str:
+    outro_estado = _BLOCO_BLOQUEADO if desbloqueado else _BLOCO_LIBERADO
+    return _MARCAS.sub("", outro_estado.sub("", text))
+
+
+def _load(filename: str) -> dict[bool, str]:
     text = (PROMPTS_DIR / filename).read_text(encoding="utf-8")
-    return text + _FOOTER_TEMPLATE
+    return {
+        desbloqueado: _renderizar(text, desbloqueado) + _FOOTER_TEMPLATE
+        for desbloqueado in (False, True)
+    }
 
 
-PROMPTS: dict[str, str] = {
+PROMPTS: dict[str, dict[bool, str]] = {
     turma: _load(filename) for turma, filename in TURMA_FILES.items()
 }
 
 
-def get_prompt(turma: str) -> str | None:
-    return PROMPTS.get(turma)
+def get_prompt(turma: str, desbloqueado: bool = True) -> str | None:
+    variantes = PROMPTS.get(turma)
+    return variantes[desbloqueado] if variantes else None

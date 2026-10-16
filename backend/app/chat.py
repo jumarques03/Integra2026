@@ -1,12 +1,13 @@
 import json
 import random
 import re
+import unicodedata
 from collections.abc import AsyncGenerator
 
 from openai import AsyncOpenAI
 
 from . import db
-from .config import OPENAI_API_KEY, OPENAI_MODEL
+from .config import OPENAI_API_KEY, OPENAI_MODEL, PALAVRA_PASSE
 from .prompts import MARKER, get_prompt
 from .schemas import ChatRequest, HistoryMessage
 
@@ -31,6 +32,23 @@ _REPEATED_WORD_REPLIES = [
 ]
 
 
+# A mensagem final de vitória é fixa no prompt. O marcador técnico é a forma
+# principal de detectar a vitória, mas a IA às vezes esquece de escrevê-lo; por
+# isso a frase da vitória também vale (nunca com o Enigma 5 trancado).
+_FRASE_VITORIA = re.compile(r"completou todos os \d+ enigmas|venceu o jogo", re.IGNORECASE)
+
+_RESPOSTAS_AGUARDANDO_SENHA = [
+    "Essa não é a palavra-passe. O último enigma continua bloqueado.",
+    "Essa palavra não ajuda aqui: o último enigma continua bloqueado até você digitar a palavra-passe.",
+]
+
+
+def _aguardando_palavra_passe(history: list[HistoryMessage]) -> bool:
+    # A IA só fala em "palavra-passe" quando o aluno chegou ao Enigma 5
+    # bloqueado, então isso indica que o jogo está esperando a palavra-passe.
+    return any(h.role == "assistant" and "palavra-passe" in h.content.lower() for h in history)
+
+
 def _find_hint_words(text: str) -> set[str]:
     low = text.lower()
     return {w for w in _HINT_WORDS if re.search(rf"\b{w}\b", low)}
@@ -38,10 +56,36 @@ def _find_hint_words(text: str) -> set[str]:
 
 def _used_hint_words(history: list[HistoryMessage]) -> set[str]:
     used: set[str] = set()
-    for h in history:
-        if h.role == "user":
-            used |= _find_hint_words(h.content)
+    for i, h in enumerate(history):
+        if h.role != "user":
+            continue
+        proxima = history[i + 1] if i + 1 < len(history) else None
+        if proxima and proxima.role == "assistant" and proxima.content in _RESPOSTAS_AGUARDANDO_SENHA:
+            continue  # palavra-chave usada com o Enigma 5 trancado: não gasta a dica
+        used |= _find_hint_words(h.content)
     return used
+
+
+def _normalizar_senha(texto: str) -> str:
+    sem_acento = "".join(
+        c for c in unicodedata.normalize("NFKD", texto) if not unicodedata.combining(c)
+    )
+    sem_pontas = re.sub(r"^\W+|\W+$", "", sem_acento.lower())
+    return re.sub(r"\s+", " ", sem_pontas)
+
+
+_SENHA_NORMALIZADA = _normalizar_senha(PALAVRA_PASSE)
+
+
+def _e_palavra_passe(texto: str) -> bool:
+    # A mensagem INTEIRA precisa ser a palavra-passe (ignora maiúsculas,
+    # acentos, espaços repetidos e pontuação nas pontas, ex: "Hands On!").
+    # Frase que apenas contém as palavras, ou variações, NÃO libera.
+    return _normalizar_senha(texto) == _SENHA_NORMALIZADA
+
+
+def _palavra_passe_ja_dita(history: list[HistoryMessage]) -> bool:
+    return any(h.role == "user" and _e_palavra_passe(h.content) for h in history)
 
 
 def _event(payload: dict) -> str:
@@ -49,12 +93,19 @@ def _event(payload: dict) -> str:
 
 
 async def stream_chat_response(req: ChatRequest) -> AsyncGenerator[str, None]:
-    system_prompt = get_prompt(req.turma)
+    user_message = req.message.strip()
+
+    # O Enigma 5 só é liberado quando uma mensagem do aluno é a palavra-passe.
+    # Enquanto isso não acontece, o texto dele nem entra no prompt da IA.
+    senha_agora = bool(user_message) and _e_palavra_passe(user_message)
+    senha_antes = _palavra_passe_ja_dita(req.history)
+    desbloqueado = senha_agora or senha_antes
+
+    system_prompt = get_prompt(req.turma, desbloqueado)
     if system_prompt is None:
         yield _event({"type": "error", "message": f"Turma desconhecida: {req.turma}"})
         return
 
-    user_message = req.message.strip()
     is_first_turn = len(req.history) == 0 and not user_message
 
     messages = [{"role": "system", "content": system_prompt}]
@@ -69,11 +120,40 @@ async def stream_chat_response(req: ChatRequest) -> AsyncGenerator[str, None]:
         yield _event({"type": "error", "message": "Mensagem vazia."})
         return
 
+    if senha_agora:
+        if senha_antes:
+            aviso = (
+                "[sinal do sistema, confirmado por código — não é o aluno falando] "
+                "O aluno repetiu a palavra-passe, que já tinha sido aceita antes. O Enigma 5 "
+                "continua liberado. Não trate isso como tentativa de resposta nem diga \"Não é isso\": "
+                "responda curto e reapresente o enigma atual completo."
+            )
+        else:
+            aviso = (
+                "[sinal do sistema, confirmado por código — não é o aluno falando] "
+                "O aluno acabou de digitar a palavra-passe CORRETA: o Enigma 5 está LIBERADO "
+                "(o texto dele agora está no seu prompt). Se o aluno já resolveu o Enigma 4, "
+                "comemore a palavra-passe em uma frase curta e apresente o Enigma 5 COMPLETO agora, "
+                "na mesma resposta. Se o Enigma 4 (ou algum anterior) ainda não foi resolvido, "
+                "não pule enigmas: agradeça, reapresente o enigma atual completo e só apresente "
+                "o Enigma 5 logo depois que o Enigma 4 for resolvido, sem pedir a palavra-passe de novo."
+            )
+        messages.append({"role": "system", "content": aviso})
+
     if user_message:
         used_before = _used_hint_words(req.history)
         words_now = _find_hint_words(user_message)
         fresh_words = words_now - used_before
         repeated_words = words_now & used_before
+
+        # Esperando a palavra-passe (Enigma 4 resolvido, Enigma 5 trancado):
+        # não existe dica para dar, então responde direto, sem chamar a IA.
+        if words_now and not desbloqueado and _aguardando_palavra_passe(req.history):
+            reply = random.choice(_RESPOSTAS_AGUARDANDO_SENHA)
+            await db.save_message(req.session_id, req.turma, "assistant", reply)
+            yield _event({"type": "token", "text": reply})
+            yield _event({"type": "done", "completed": False})
+            return
 
         # Só palavra(s) repetida(s) e nenhuma nova: nem chama a IA, responde
         # direto — assim a recusa é garantida por código, não depende da IA
@@ -95,6 +175,8 @@ async def stream_chat_response(req: ChatRequest) -> AsyncGenerator[str, None]:
                     f'A palavra-chave de dica "{palavra}" está sendo usada PELA PRIMEIRA VEZ '
                     f"nesta conversa inteira (o sistema já conferiu isso, não é uma suposição "
                     f'sua). Dê a dica do enigma atual normalmente, seguindo a REGRA DE DICAS. '
+                    f"O enigma atual é SEMPRE o último que você apresentou nesta conversa e que "
+                    f"ainda não foi resolvido (nunca a dica de um enigma anterior já resolvido). "
                     f"Não se confunda com o uso de nenhuma outra palavra-chave em momentos "
                     f"anteriores desta conversa — essa aqui, \"{palavra}\", é nova."
                 ),
@@ -186,4 +268,9 @@ async def stream_chat_response(req: ChatRequest) -> AsyncGenerator[str, None]:
     if display_text:
         await db.save_message(req.session_id, req.turma, "assistant", display_text)
 
-    yield _event({"type": "done", "completed": completed})
+    if _FRASE_VITORIA.search(display_text):
+        completed = True
+
+    # Sem a palavra-passe o Enigma 5 não existe: mesmo que a IA diga que o
+    # aluno venceu (ou invente um "Enigma 5"), a vitória não é registrada.
+    yield _event({"type": "done", "completed": completed and desbloqueado})

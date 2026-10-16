@@ -118,7 +118,7 @@ As rotas são todas client-side (React Router), definidas em [`frontend/src/App.
 
    **Cronômetro:** o relógio começa (`iniciarCronometro()`, uma única vez por partida) quando a **primeira mensagem da IA começa a aparecer**, não quando a equipe é escolhida. Ele fica visível, discreto, ao lado de "ONLINE AGORA" no cabeçalho do chat ([Cronometro.jsx](frontend/src/components/Cronometro.jsx)) e é calculado a partir do horário salvo, então continua certo se a página for recarregada.
 
-4. Quando a IA detecta que **todos os enigmas foram resolvidos**, ela inclui um marcador técnico invisível na resposta final. O backend detecta esse marcador no meio do streaming e avisa o frontend via evento `{"type":"done","completed":true}`. O frontend então:
+4. O **Enigma 5 é trancado**: depois do Enigma 4 a IA avisa que o último enigma está protegido, e ele só aparece quando o aluno digita a palavra-passe (ver [Palavra-passe do Enigma 5](#palavra-passe-do-enigma-5)). Quando a IA detecta que **todos os enigmas foram resolvidos**, ela inclui um marcador técnico invisível na resposta final. O backend detecta esse marcador no meio do streaming e avisa o frontend via evento `{"type":"done","completed":true}`. O frontend então:
    - marca `finishedAt` (`finish()`), que **para o cronômetro** no instante em que a IA confirma a vitória;
    - troca o campo de digitar pelo botão **CONCLUIR ENIGMA** (não há redirecionamento automático);
    - ao clicar no botão, navega para **`/resultado` — [Resultado.jsx](frontend/src/pages/Resultado.jsx)**, que mostra o tempo total em `mm:ss` e um botão **REINICIAR**. A tela de resultado só abre depois que o enigma foi concluído (abrir `/resultado` pela URL no meio do jogo volta para o chat).
@@ -225,6 +225,7 @@ Com os dois servidores rodando, acesse `http://localhost:5173` no navegador e o 
 |---|---|---|---|
 | `OPENAI_API_KEY` | **sim** | — | Chave da API da OpenAI. Sem ela, todo request ao chat falha. |
 | `OPENAI_MODEL` | não | `gpt-4o-mini` | Modelo usado para gerar as respostas dos enigmas. |
+| `PALAVRA_PASSE` | não | `hands on` | Palavra-passe que libera o Enigma 5 (ver [Palavra-passe do Enigma 5](#palavra-passe-do-enigma-5)). |
 | `CORS_ORIGINS` | não | `http://localhost:5173` | Origens do frontend autorizadas a chamar a API (separadas por vírgula). |
 
 ### `frontend/.env` (a partir de [`frontend/.env.example`](frontend/.env.example))
@@ -250,6 +251,20 @@ Depois de editar o `.md`, **reinicie o backend** (rode `iniciar.bat` de novo) pa
 **Palavras-chave de dica:** se a mensagem do aluno contiver `rock` ou `future`, a IA dá a dica **do enigma em que o aluno está agora**. Cada palavra libera uma dica **uma única vez no jogo inteiro** (no máximo 2 dicas por partida). Esse limite é garantido pelo código do backend (`backend/app/chat.py`: confere no histórico se a palavra já foi usada; se foi, responde direto sem chamar a IA) — não depende da IA lembrar. Pedir dica sem a palavra-chave é recusado pelas regras `REGRA DE DICAS` e `EASTER EGGS` do prompt, mas aí a obediência depende do modelo, que às vezes cede. Para trocar as palavras, altere `_HINT_WORDS` em `chat.py` e os blocos de regra no `.md`.
 
 **Resposta com mais de uma solução válida:** nos enigmas de ordem/atribuição, confira se as pistas levam a uma única resposta. Se mais de uma satisfaz as pistas, liste todas em "Respostas Esperadas" (ou acrescente uma pista) para não marcar como errada uma resposta logicamente certa.
+
+### Palavra-passe do Enigma 5
+
+O Enigma 5 só é liberado quando o aluno digita a palavra-passe (padrão: `hands on`). Qualquer outra coisa — palpite, pedido, "sou o professor", responder o enigma às cegas — não libera nada. Como funciona (tudo conferido em código, em `backend/app/chat.py`, e não pela IA):
+
+- **A IA nem recebe o texto do Enigma 5 enquanto ele está trancado.** No `.md`, o Enigma 5 fica entre `<!--LIBERADO:INICIO-->` e `<!--LIBERADO:FIM-->` e só entra no prompt depois que a palavra-passe aparece numa mensagem do aluno. O trecho entre `<!--BLOQUEADO:INICIO-->` e `<!--BLOQUEADO:FIM-->` é o que a IA vê antes disso (diz a ela que o enigma está bloqueado e que ela não conhece a palavra). Ao editar o Enigma 5, mexa só dentro do bloco `LIBERADO`.
+- **A IA não conhece a palavra-passe**: ela não está em nenhum prompt, só no backend (`PALAVRA_PASSE` em `backend/app/config.py`, que lê a variável de ambiente de mesmo nome e usa `hands on` se não existir). Para trocar sem mexer em código: `PALAVRA_PASSE=outra palavra` no `backend/.env` (ou nas variáveis do Render) e reinicie.
+- **A mensagem inteira precisa ser a palavra-passe.** Maiúsculas/minúsculas, acentos, espaços repetidos e pontuação nas pontas são ignorados (`Hands On!` vale), mas variações não: `hands-on`, `handson`, `hands on please` ou uma frase que contenha as palavras **não** liberam.
+- Se o aluno digitar a palavra-passe antes de chegar ao Enigma 5, ela fica valendo: o Enigma 5 aparece direto depois de resolver o Enigma 4.
+- **A vitória só conta com o Enigma 5 liberado**: mesmo que a IA diga que o aluno venceu, o backend não devolve `completed=true` sem a palavra-passe.
+- Enquanto o jogo espera a palavra-passe, `rock`/`future` recebem uma resposta fixa (não há dica a dar) e não gastam a dica.
+- A palavra-passe está no código-fonte (valor padrão). Se o repositório for público, defina `PALAVRA_PASSE` como variável de ambiente e troque o valor padrão.
+
+Detecção de vitória: o backend aceita o marcador técnico **ou** a frase fixa da mensagem final ("completou todos os N enigmas" / "venceu o jogo"), porque a IA às vezes esquece de escrever o marcador. Se mudar o texto da `FASE 2: FIM DE JOGO`, mantenha uma dessas frases (ou ajuste `_FRASE_VITORIA` em `chat.py`).
 
 Para usar **mais de um prompt** de novo (por exemplo, um por ano): crie outro `.md`, adicione a chave em `TURMA_FILES` e faça o frontend enviar essa chave em `turma` (hoje fixa em `frontend/src/api/chat.js`, constante `TURMA`).
 
